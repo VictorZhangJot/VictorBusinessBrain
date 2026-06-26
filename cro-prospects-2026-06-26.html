@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRO Weekly Prospects · 26 June 2026 · Purely Personal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#E8294C; --primary-light:#F5607A;
+    --black:#0A0A0A; --ink:#15151A; --white:#FFFFFF; --off-white:#F8F7F5;
+    --gray:#E4E3E0; --gray-text:#5b5b62; --gray-light:#F2F1EE;
+    --good:#16A34A; --warn:#D97706; --bad:#DC2626;
+    --r-md:14px; --r-lg:22px; --pill:9999px;
+    --sh:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06);
+    --grad:linear-gradient(135deg, color-mix(in srgb,var(--primary) 78%, #000) 0%, var(--primary) 48%, var(--primary-light) 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Rethink Sans',sans-serif;background:radial-gradient(80% 60% at 96% -12%, color-mix(in srgb,var(--primary) 14%, transparent), transparent 60%), radial-gradient(60% 50% at 0% 6%, color-mix(in srgb,var(--primary-light) 10%, transparent), transparent 55%), var(--off-white);background-attachment:fixed;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .doc{max-width:860px;margin:0 auto;padding:34px 22px 70px;}
+
+  .ohead{border-radius:var(--r-md);padding:26px 28px;margin-bottom:22px;color:#fff;background:var(--grad);box-shadow:0 16px 42px color-mix(in srgb,var(--primary) 30%, transparent);position:relative;overflow:hidden;}
+  .ohead::after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.10);top:-120px;right:-60px;pointer-events:none;}
+  .ohead .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.82;font-weight:600;}
+  .ohead h1{font-size:clamp(22px,3.5vw,30px);font-weight:800;letter-spacing:-.02em;margin:5px 0 3px;}
+  .ohead .d{font-size:13px;opacity:.85;}
+
+  .sec{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-text);font-weight:700;margin:28px 0 12px;}
+  .row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;border-bottom:1px solid var(--gray-light);}
+  .row:last-child{border-bottom:none;}
+  .tagi{font-size:11px;font-weight:700;padding:2px 9px;border-radius:var(--pill);margin-left:auto;white-space:nowrap;flex-shrink:0;}
+  .t-red{background:#fdecec;color:var(--bad);} .t-amb{background:#fdf1de;color:var(--warn);}
+  .t-grey{background:var(--gray-light);color:var(--gray-text);} .t-grn{background:#e7f6ee;color:var(--good);} .t-blue{background:#e6f0fc;color:#1E6FE0;}
+
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+  .stat{background:#fff;border:1px solid var(--gray);border-radius:var(--r-md);box-shadow:var(--sh);padding:18px 20px;position:relative;overflow:hidden;}
+  .stat::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
+  .stat .l{font-size:12px;color:var(--gray-text);} .stat .n{font-size:38px;font-weight:800;letter-spacing:-.02em;margin-top:4px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .stat .delta{font-size:13px;font-weight:600;margin-top:2px;color:var(--gray-text);}
+
+  /* Prospect card */
+  .pcard{background:#fff;border:1px solid var(--gray);border-radius:var(--r-md);box-shadow:var(--sh);padding:20px 22px;margin-bottom:18px;}
+  .pcard.flag{border:1px solid #fdf1de;background:#fffdf8;}
+  .ph{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px;}
+  .ph-left{flex:1;}
+  .pcard .nm{font-weight:700;font-size:16px;color:var(--ink);}
+  .pcard .rl{font-size:13px;color:var(--gray-text);margin-top:2px;}
+  .pcard .li{font-size:11px;color:var(--primary);margin-top:3px;font-weight:600;}
+
+  .intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
+  .intel-box{background:var(--gray-light);border-radius:10px;padding:12px 14px;}
+  .intel-box .il{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-text);font-weight:700;margin-bottom:4px;}
+  .intel-box .iv{font-size:13px;color:var(--ink);line-height:1.5;}
+
+  .hook-box{background:color-mix(in srgb,var(--primary) 6%,#fff);border:1px solid color-mix(in srgb,var(--primary) 18%,#fff);border-radius:10px;padding:12px 14px;margin:12px 0;}
+  .hook-box .hl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);font-weight:700;margin-bottom:4px;}
+  .hook-box .hv{font-size:13px;color:var(--ink);font-style:italic;line-height:1.5;}
+
+  .seq-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-text);font-weight:700;margin:16px 0 8px;}
+  .msg{background:#fff;border:1px solid var(--gray);border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+  .msg-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .msg-num{width:22px;height:22px;border-radius:50%;background:var(--grad);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .msg-title{font-size:11px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.08em;}
+  .msg-when{font-size:11px;color:var(--gray-text);margin-left:auto;}
+  .msg-body{font-size:14px;color:var(--ink);line-height:1.65;}
+  .msg-char{font-size:11px;color:var(--gray-text);margin-top:6px;}
+
+  .flag-banner{background:#fdf1de;border:1px solid #fcd34d;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:#92400e;}
+  .flag-banner strong{color:#78350f;}
+
+  .note{background:linear-gradient(135deg, var(--ink) 0%, color-mix(in srgb,var(--primary) 26%, var(--ink)) 100%);color:#fff;border-radius:var(--r-md);padding:20px 24px;font-size:15px;margin-top:8px;box-shadow:0 14px 36px rgba(0,0,0,.16);}
+  .note b{color:var(--primary-light);}
+
+  footer{text-align:center;padding:30px 22px 10px;color:var(--gray-text);font-size:13px;}
+  footer b{color:var(--ink);}
+
+  @media(max-width:640px){.grid3{grid-template-columns:1fr;}.intel-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- HEADER -->
+  <div class="ohead">
+    <div class="k">CRO · Weekly prospect pack</div>
+    <h1>9 matched. 3 hot. DMs drafted, nothing sent.</h1>
+    <div class="d">Sourced from LinkedIn · Singapore · Healthcare and AI/Data Centre · 26 June 2026</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="grid3">
+    <div class="stat"><div class="l">Prospects sourced</div><div class="n"><span class="count" data-to="9">0</span></div><div class="delta">1 flagged below threshold</div></div>
+    <div class="stat"><div class="l">Hot (score 8+)</div><div class="n" style="color:var(--good)"><span class="count" data-to="3">0</span></div><div class="delta">Dawn, Diana, Jelena</div></div>
+    <div class="stat"><div class="l">DMs drafted</div><div class="n"><span class="count" data-to="45">0</span></div><div class="delta">5 messages per prospect</div></div>
+  </div>
+
+  <!-- ICP NOTE -->
+  <div style="background:#fff;border:1px solid var(--gray);border-radius:var(--r-md);padding:14px 18px;margin-bottom:24px;font-size:13px;color:var(--gray-text);">
+    <strong style="color:var(--ink);">ICP used:</strong> HR managers and hiring managers at healthcare or AI/Data Centre companies in Singapore. Fee range 10-25% of annual salary depending on role. Pain: urgent headcount gaps, outdated skills requirements, time-poor managers who need a consultative partner, not just a CV factory.
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec">HOT prospects · score 8-9</div>
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- PROSPECT 1: DAWN GOH -->
+  <div class="pcard">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Dawn Goh</div>
+        <div class="rl">HR Lead · Eastern General Hospital · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAAByabJgBejSX7F46s8wyREQxsIoqLE_HI1E" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-grn">hot · 9/10</span>
+    </div>
+
+    <div class="intel-grid">
+      <div class="intel-box"><div class="il">Strategic Fit</div><div class="iv">9/10 · Hospital HR in Singapore. 13 years experience. Exact ICP.</div></div>
+      <div class="intel-box"><div class="il">Temperature</div><div class="iv">Warm · Systems-thinking HR leader, open to collaboration.</div></div>
+      <div class="intel-box"><div class="il">Comm Style</div><div class="iv">Amiable · People-first language, values culture and alignment.</div></div>
+      <div class="intel-box"><div class="il">Opener</div><div class="iv">Peer Opener · Same industry, genuine curiosity about her clinical staffing challenges.</div></div>
+    </div>
+
+    <div class="hook-box">
+      <div class="hl">Human Hook</div>
+      <div class="hv">"13 years building the people foundation behind patient care at Eastern General, which means navigating clinical succession in one of the tightest markets in Singapore."</div>
+    </div>
+
+    <div class="seq-label">5-message sequence · drafts for your approval, nothing sent</div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">1</div><div class="msg-title">Connection Request</div><div class="msg-when">Send now</div></div>
+      <div class="msg-body">Hi Dawn, came across your profile while looking at HR leaders in Singapore healthcare. Your focus on culture-building and succession planning at Eastern General Hospital caught my eye. Would love to connect and compare notes on what you're seeing in the clinical talent market.</div>
+      <div class="msg-char">~272 chars</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">2</div><div class="msg-title">Icebreaker</div><div class="msg-when">Day 1 after acceptance</div></div>
+      <div class="msg-body">Hi Dawn, thanks for connecting. Most hospital HR teams I speak with are spending significantly more time on clinical succession planning now than they were two years ago. Is that something you're feeling pressure on too, or are you ahead of it at Eastern General?</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">3</div><div class="msg-title">Value-Add Follow-Up</div><div class="msg-when">Day 3 if no reply</div></div>
+      <div class="msg-body">Hi Dawn, following up with something relevant. We're seeing a real gap for specialist clinical roles in Singapore right now, particularly physiotherapists and radiographers. The overseas sourcing pipeline for these has slowed noticeably. Is that hitting Eastern General's hiring timelines at all?</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">4</div><div class="msg-title">The Pivot</div><div class="msg-when">Day 4 if no reply</div></div>
+      <div class="msg-body">Different question, Dawn: when you do bring in an external recruiter for clinical roles, what makes them worth working with again versus a one-and-done?</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">5</div><div class="msg-title">Clean Exit</div><div class="msg-when">Day 7 if no reply</div></div>
+      <div class="msg-body">Hi Dawn, I'll leave it here. If headcount pressures change or you want a read on what's moving in Singapore's clinical talent market, feel free to reach out anytime. Good luck with the team at Eastern General.</div>
+    </div>
+  </div>
+
+  <!-- PROSPECT 2: DIANA QUAH -->
+  <div class="pcard">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Diana Quah (IHRP-SP)</div>
+        <div class="rl">Strategic HR Leader · Healthcare / Education / Corporate · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAABW68tcB3mYOykoX2YVQIVHmQOUplA_Fn1E" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-grn">hot · 9/10</span>
+    </div>
+
+    <div class="intel-grid">
+      <div class="intel-box"><div class="il">Strategic Fit</div><div class="iv">9/10 · 15 years HR leadership spanning healthcare, IHRP-SP certified, SEA focus.</div></div>
+      <div class="intel-box"><div class="il">Temperature</div><div class="iv">Warm · Strategic and results-oriented, comfortable with external partners.</div></div>
+      <div class="intel-box"><div class="il">Comm Style</div><div class="iv">Driver · Track-record language, forward-thinking, values credentials.</div></div>
+      <div class="intel-box"><div class="il">Opener</div><div class="iv">Authority Flip · Acknowledge her expertise first, position as peer with market intelligence to add.</div></div>
+    </div>
+
+    <div class="hook-box">
+      <div class="hl">Human Hook</div>
+      <div class="hv">"IHRP-SP certified with 15 years spanning healthcare, education, and corporate HR across Singapore, Malaysia, Hong Kong, and China. She has seen enough markets to know when advice is local-specific versus generic."</div>
+    </div>
+
+    <div class="seq-label">5-message sequence · drafts for your approval, nothing sent</div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">1</div><div class="msg-title">Connection Request</div><div class="msg-when">Send now</div></div>
+      <div class="msg-body">Hi Diana, IHRP-SP certified with 15 years spanning healthcare, education, and corporate HR across Singapore and Southeast Asia is a rare combination. I work with HR leaders on specialist recruitment in the healthcare space. Would love to connect.</div>
+      <div class="msg-char">~247 chars</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">2</div><div class="msg-title">Icebreaker</div><div class="msg-when">Day 1 after acceptance</div></div>
+      <div class="msg-body">Hi Diana, thanks for connecting. Your background crosses healthcare and corporate, which not many HR leaders have in Singapore. When you're hiring for specialist clinical roles, do you find the local talent pool deep enough, or are you regularly looking offshore?</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">3</div><div class="msg-title">Value-Add Follow-Up</div><div class="msg-when">Day 3 if no reply</div></div>
+      <div class="msg-body">Hi Diana, something that might be relevant: we're seeing a shift in how Singapore healthcare organizations are approaching foreign hire compliance. Most HR teams are spending more time on it than they expected. Is that something your team is navigating too?</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">4</div><div class="msg-title">The Pivot</div><div class="msg-when">Day 4 if no reply</div></div>
+      <div class="msg-body">Different question, Diana: when you evaluate a new recruitment partner, what's the first thing that tells you whether they actually understand your sector or are just filling roles?</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">5</div><div class="msg-title">Clean Exit</div><div class="msg-when">Day 7 if no reply</div></div>
+      <div class="msg-body">Hi Diana, I'll leave the door open. If you ever want to talk through what's moving in Singapore's healthcare talent market or have a specific headcount challenge, feel free to reach back. Good luck with your work.</div>
+    </div>
+  </div>
+
+  <!-- PROSPECT 3: JELENA L. -->
+  <div class="pcard">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Jelena L.</div>
+        <div class="rl">Senior HR Professional · Healthcare / FMCG / Aviation / Tech · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAAAuO8-AB71_LMcnuQtEunRD9czZNoRiD8vM" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-grn">hot · 8/10</span>
+    </div>
+
+    <div class="intel-grid">
+      <div class="intel-box"><div class="il">Strategic Fit</div><div class="iv">8/10 · Covers both healthcare and tech, talent acquisition specialist, Singapore-based.</div></div>
+      <div class="intel-box"><div class="il">Temperature</div><div class="iv">Warm · Active in employer branding signals openness to partnerships.</div></div>
+      <div class="intel-box"><div class="il">Comm Style</div><div class="iv">Expressive · Passion-driven language, values impact and people experience.</div></div>
+      <div class="intel-box"><div class="il">Opener</div><div class="iv">Peer Opener · Her cross-sector experience is genuinely unusual. Start with curiosity about what she's focused on now.</div></div>
+    </div>
+
+    <div class="hook-box">
+      <div class="hl">Human Hook</div>
+      <div class="hv">"Talent acquisition and employer branding across healthcare, FMCG, aviation, tech, and energy in Singapore. Rare to find someone who has hired across that many sectors without losing depth."</div>
+    </div>
+
+    <div class="seq-label">5-message sequence · drafts for your approval, nothing sent</div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">1</div><div class="msg-title">Connection Request</div><div class="msg-when">Send now</div></div>
+      <div class="msg-body">Hi Jelena, your background spanning healthcare, aviation, FMCG, and tech talent acquisition in Singapore is a rare combination. I work in specialist recruitment in the same market. Would love to connect and compare notes.</div>
+      <div class="msg-char">~225 chars</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">2</div><div class="msg-title">Icebreaker</div><div class="msg-when">Day 1 after acceptance</div></div>
+      <div class="msg-body">Hi Jelena, thanks for connecting. With your experience across healthcare and tech, I'm curious: which sector is giving you the harder time on specialist hiring right now?</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">3</div><div class="msg-title">Value-Add Follow-Up</div><div class="msg-when">Day 3 if no reply</div></div>
+      <div class="msg-body">Hi Jelena, following up. Across both healthcare and tech in Singapore, the competitive dynamics are very different but both are getting harder. Is there a specific function you're finding most difficult to fill at the moment?</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">4</div><div class="msg-title">The Pivot</div><div class="msg-when">Day 4 if no reply</div></div>
+      <div class="msg-body">Hi Jelena, different angle: when you've worked with recruitment agencies in the past, what's made the relationship feel genuinely consultative rather than just transactional?</div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-head"><div class="msg-num">5</div><div class="msg-title">Clean Exit</div><div class="msg-when">Day 7 if no reply</div></div>
+      <div class="msg-body">Hi Jelena, I'll leave it there. If you ever have a specific headcount challenge or want to compare notes on what's moving in Singapore, feel free to reach out anytime. Good luck with the work.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec">WARM prospects · score 6-7</div>
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- PROSPECT 4: FOONG LENG LO -->
+  <div class="pcard">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Foong Leng Lo</div>
+        <div class="rl">HR Leader · Pharma / FMCG · Asia Pacific · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAAAURJc8BJV9ZXfTuA9rUYKuUAJ02cguZYVQ" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-amb">warm · 7/10</span>
+    </div>
+    <div class="intel-grid">
+      <div class="intel-box"><div class="il">Strategic Fit</div><div class="iv">7/10 · Pharma/life sciences HR leader with regional scope across 6 APAC markets. Specialist hiring is core to her work.</div></div>
+      <div class="intel-box"><div class="il">Temperature</div><div class="iv">Cold · No obvious recent posting signals. Approach with value first.</div></div>
+      <div class="intel-box"><div class="il">Comm Style</div><div class="iv">Driver · Results-driven, strategic framing, values proven track record.</div></div>
+      <div class="intel-box"><div class="il">Opener</div><div class="iv">Directness Play · She values efficiency. Lead with a direct, relevant observation.</div></div>
+    </div>
+    <div class="hook-box"><div class="hl">Human Hook</div><div class="hv">"Built HR functions from scratch across six APAC markets, including M&A integrations in pharma. She knows the difference between a strategic hire and a seat-filler."</div></div>
+    <div class="seq-label">5-message sequence · drafts for your approval, nothing sent</div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">1</div><div class="msg-title">Connection Request</div><div class="msg-when">Send now</div></div><div class="msg-body">Hi Foong Leng, your experience building HR functions across APAC pharma and FMCG, including M&A integrations, caught my attention. I work in specialist recruitment with a focus on healthcare and life sciences in Singapore. Would love to connect.</div><div class="msg-char">~244 chars</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">2</div><div class="msg-title">Icebreaker</div><div class="msg-when">Day 1 after acceptance</div></div><div class="msg-body">Hi Foong Leng, thanks for connecting. Building HR across six APAC markets in pharma is serious work. Are you currently based in Singapore, and is your hiring focus primarily regional or local right now?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">3</div><div class="msg-title">Value-Add Follow-Up</div><div class="msg-when">Day 3 if no reply</div></div><div class="msg-body">Hi Foong Leng, following up. In pharma and life sciences across Asia Pacific, we're seeing demand for regulatory and compliance talent outpace supply in most markets. Is that showing up in your hiring priorities right now?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">4</div><div class="msg-title">The Pivot</div><div class="msg-when">Day 4 if no reply</div></div><div class="msg-body">Different question: when a role is genuinely hard to fill, what is your default first move? Internal mobility, external search, or something else?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">5</div><div class="msg-title">Clean Exit</div><div class="msg-when">Day 7 if no reply</div></div><div class="msg-body">Hi Foong Leng, I'll leave it here. If you ever have a Singapore-based search that's hard to crack or want to talk through what's available in APAC pharma talent, feel free to reach out.</div></div>
+  </div>
+
+  <!-- PROSPECT 5: ELAINE O. -->
+  <div class="pcard">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Elaine O.</div>
+        <div class="rl">VP People & Culture · Veremark (tech / background screening) · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAAAPSE7gBb6T0Z207rNkZFG7ghr8HppJ7G-Y" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-amb">warm · 7/10</span>
+    </div>
+    <div class="intel-grid">
+      <div class="intel-box"><div class="il">Strategic Fit</div><div class="iv">7/10 · Former ByteDance and AWS HR leader, now scaling Veremark through M&A. AI/tech hiring is live for her right now.</div></div>
+      <div class="intel-box"><div class="il">Temperature</div><div class="iv">Warm · Active M&A period means real hiring pressure. Timing is good.</div></div>
+      <div class="intel-box"><div class="il">Comm Style</div><div class="iv">Driver · High-caliber, moves fast, values directness and track record.</div></div>
+      <div class="intel-box"><div class="il">Opener</div><div class="iv">Directness Play · She has seen enough recruiters to filter fast. Lead with something specific to Veremark's situation.</div></div>
+    </div>
+    <div class="hook-box"><div class="hl">Human Hook</div><div class="hv">"Built APAC HR at ByteDance and AWS, now leading People & Culture through Veremark's active M&A expansion. She's in a real hiring sprint right now."</div></div>
+    <div class="seq-label">5-message sequence · drafts for your approval, nothing sent</div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">1</div><div class="msg-title">Connection Request</div><div class="msg-when">Send now</div></div><div class="msg-body">Hi Elaine, building APAC HR at ByteDance and AWS, then leading People & Culture through Veremark's M&A growth phase is a serious resume. I work in specialist recruitment in Singapore, including AI and tech roles. Would love to connect.</div><div class="msg-char">~234 chars</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">2</div><div class="msg-title">Icebreaker</div><div class="msg-when">Day 1 after acceptance</div></div><div class="msg-body">Hi Elaine, thanks for connecting. Managing People & Culture across three regions during an active M&A period is genuinely complex. As Veremark scales, are you finding AI-related roles harder to hire for than traditional tech roles in Singapore?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">3</div><div class="msg-title">Value-Add Follow-Up</div><div class="msg-when">Day 3 if no reply</div></div><div class="msg-body">Hi Elaine, something relevant: in Singapore's tech market, AI and data roles are taking significantly longer to fill than equivalent software engineering positions, partly because the skill sets are still moving. Is that showing up in your searches?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">4</div><div class="msg-title">The Pivot</div><div class="msg-when">Day 4 if no reply</div></div><div class="msg-body">Different angle: when you're looking specifically for AI or data infrastructure talent in Singapore, are you finding the local pool usable or are you mostly going offshore?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">5</div><div class="msg-title">Clean Exit</div><div class="msg-when">Day 7 if no reply</div></div><div class="msg-body">Hi Elaine, I'll leave it there. If Veremark's growth creates a search in Singapore that's hard to crack, feel free to reach back. Good luck with the M&A integration.</div></div>
+  </div>
+
+  <!-- PROSPECT 6: PAULINE OH -->
+  <div class="pcard">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Pauline Oh</div>
+        <div class="rl">HR · Lee Ah Mooi Old Age Home · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAACAiOdgB-ZnYyqg6L39Ru-aDm5l3Y9A_He0" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-amb">warm · 7/10</span>
+    </div>
+    <div class="intel-grid">
+      <div class="intel-box"><div class="il">Strategic Fit</div><div class="iv">7/10 · Aged care HR in Singapore is one of the hardest staffing segments. Direct pain match with overseas sourcing offer.</div></div>
+      <div class="intel-box"><div class="il">Temperature</div><div class="iv">Warm · Aged care staffing pressure is ongoing and well-documented in Singapore.</div></div>
+      <div class="intel-box"><div class="il">Comm Style</div><div class="iv">Amiable · People-focused, values impact, coaching orientation. Lead with empathy.</div></div>
+      <div class="intel-box"><div class="il">Opener</div><div class="iv">Peer Opener · Acknowledge the specific difficulty of her staffing context before anything else.</div></div>
+    </div>
+    <div class="hook-box"><div class="hl">Human Hook</div><div class="hv">"HR at a residential aged care home in Singapore, which means sourcing caregivers in one of the most constrained healthcare staffing markets in the country."</div></div>
+    <div class="seq-label">5-message sequence · drafts for your approval, nothing sent</div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">1</div><div class="msg-title">Connection Request</div><div class="msg-when">Send now</div></div><div class="msg-body">Hi Pauline, HR for a residential care home in Singapore is genuinely challenging, especially for caregiving staff. I work in specialist healthcare recruitment, including overseas sourcing. Would love to connect and see if there's anything useful to share.</div><div class="msg-char">~253 chars</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">2</div><div class="msg-title">Icebreaker</div><div class="msg-when">Day 1 after acceptance</div></div><div class="msg-body">Hi Pauline, thanks for connecting. Aged care staffing in Singapore is one of the hardest segments to hire in right now. Are you mainly looking for local caregivers or is overseas sourcing already part of your current approach?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">3</div><div class="msg-title">Value-Add Follow-Up</div><div class="msg-when">Day 3 if no reply</div></div><div class="msg-body">Hi Pauline, following up. We help source foreign healthcare workers, including from the Philippines, for Singapore care settings. If overseas sourcing is something you're exploring, I'm happy to walk you through what the end-to-end process typically looks like and what compliance steps are involved.</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">4</div><div class="msg-title">The Pivot</div><div class="msg-when">Day 4 if no reply</div></div><div class="msg-body">Hi Pauline, different question: when you've hired caregiving or nursing staff in the past, what's the one part of the process that's consistently taken longer than it should?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">5</div><div class="msg-title">Clean Exit</div><div class="msg-when">Day 7 if no reply</div></div><div class="msg-body">Hi Pauline, I'll leave the door open. If caregiving or clinical headcount becomes a pressure point and you want to talk through your options, feel free to reach back anytime. Good luck with the team.</div></div>
+  </div>
+
+  <!-- PROSPECT 7: AMJAD ALI -->
+  <div class="pcard">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Amjad Ali</div>
+        <div class="rl">Operations Director · Dental Clinic Group · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAAAmIugABliz20qlyff38bd51gOo1DyrmEOE" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-amb">warm · 6/10</span>
+    </div>
+    <div class="intel-grid">
+      <div class="intel-box"><div class="il">Strategic Fit</div><div class="iv">6/10 · Operations Director with direct staffing and manpower allocation responsibility across multiple dental clinics.</div></div>
+      <div class="intel-box"><div class="il">Temperature</div><div class="iv">Cold · No recent content signals. Approach from his operational pain, not HR language.</div></div>
+      <div class="intel-box"><div class="il">Comm Style</div><div class="iv">Driver · Hands-on, process-oriented, detail-focused. Values efficiency and outcomes.</div></div>
+      <div class="intel-box"><div class="il">Opener</div><div class="iv">Pattern Interrupt · He is ops, not HR. Come in from the operational staffing angle, not the HR partner angle.</div></div>
+    </div>
+    <div class="hook-box"><div class="hl">Human Hook</div><div class="hv">"Running multi-site dental clinic operations in Singapore, including all manpower allocation, dentist contract renewals, and clinical staffing. The hiring pressure lands on him directly."</div></div>
+    <div class="seq-label">5-message sequence · drafts for your approval, nothing sent</div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">1</div><div class="msg-title">Connection Request</div><div class="msg-when">Send now</div></div><div class="msg-body">Hi Amjad, running dental clinic operations across multiple sites, including all the manpower and staffing allocation, is a specific kind of hard. I work in healthcare recruitment in Singapore. Would love to connect.</div><div class="msg-char">~214 chars</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">2</div><div class="msg-title">Icebreaker</div><div class="msg-when">Day 1 after acceptance</div></div><div class="msg-body">Hi Amjad, thanks for connecting. Managing dentist contracts and staffing across multiple clinic locations means your bench depth matters a lot. When a role opens up, what does your current search process look like?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">3</div><div class="msg-title">Value-Add Follow-Up</div><div class="msg-when">Day 3 if no reply</div></div><div class="msg-body">Hi Amjad, following up. In dental and allied health, we're seeing candidates receive multiple offers simultaneously now, which is making the window from shortlist to offer much shorter than it used to be. Is speed of hire something that has come up as a pressure point for you?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">4</div><div class="msg-title">The Pivot</div><div class="msg-when">Day 4 if no reply</div></div><div class="msg-body">Different angle: when you do bring in external help for a clinical or dental hire, what would make that worth the fee from your perspective?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">5</div><div class="msg-title">Clean Exit</div><div class="msg-when">Day 7 if no reply</div></div><div class="msg-body">Hi Amjad, I'll leave it here. If you're ever in a crunch on a clinical or admin hire and want a faster path to a shortlist, feel free to reach out. Good luck with the clinics.</div></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec">NEW / COLD prospects · score 5</div>
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- PROSPECT 8: MILAN PALEJA -->
+  <div class="pcard">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Milan Paleja</div>
+        <div class="rl">Chairman & MD · Wellesta Holdings (healthcare commercial, 600+ team) · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAAAB26BkBSBQjWcnHEEBRhuSClP3BgP4I3fo" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-blue">new · 5/10</span>
+    </div>
+    <div class="intel-grid">
+      <div class="intel-box"><div class="il">Strategic Fit</div><div class="iv">5/10 · C-suite, not a hiring manager. But at 600+ headcount across SEA, he approves senior hires. High value if converted.</div></div>
+      <div class="intel-box"><div class="il">Temperature</div><div class="iv">Cold · Senior executive, likely well-contacted. Takes longer to warm.</div></div>
+      <div class="intel-box"><div class="il">Comm Style</div><div class="iv">Driver · Strategic, results-oriented, values market insight and execution.</div></div>
+      <div class="intel-box"><div class="il">Opener</div><div class="iv">Authority Flip · He is senior. Position yourself as a market intelligence resource, not a recruiter pitching services.</div></div>
+    </div>
+    <div class="hook-box"><div class="hl">Human Hook</div><div class="hv">"Building and turning around healthcare commercial units across SEA, India, and Europe with a 600-person team. He understands what the wrong senior hire costs."</div></div>
+    <div class="seq-label">5-message sequence · drafts for your approval, nothing sent</div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">1</div><div class="msg-title">Connection Request</div><div class="msg-when">Send now</div></div><div class="msg-body">Hi Milan, building a 600-person healthcare commercial organization across Southeast Asia, India, and Europe from Singapore is a specific kind of challenge. I work in specialist recruitment in the healthcare space. Would love to connect.</div><div class="msg-char">~233 chars</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">2</div><div class="msg-title">Icebreaker</div><div class="msg-when">Day 1 after acceptance</div></div><div class="msg-body">Hi Milan, thanks for connecting. Running a commercial healthcare team across that many markets means talent needs are quite different at each level. Where are the hardest roles to fill for Wellesta right now?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">3</div><div class="msg-title">Value-Add Follow-Up</div><div class="msg-when">Day 3 if no reply</div></div><div class="msg-body">Hi Milan, following up. In healthcare commercial roles across Southeast Asia, we're seeing real difficulty finding talent that combines clinical knowledge with commercial acumen. It is a narrow profile. Is that a type of search you encounter often?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">4</div><div class="msg-title">The Pivot</div><div class="msg-when">Day 4 if no reply</div></div><div class="msg-body">Different question: when you expand into a new market, does talent for that market typically come from local sourcing or from moving people internally across the organization?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">5</div><div class="msg-title">Clean Exit</div><div class="msg-when">Day 7 if no reply</div></div><div class="msg-body">Hi Milan, I'll leave it there. If talent ever becomes a constraint on Wellesta's expansion and you want a read on what's available in specific markets, feel free to reach back.</div></div>
+  </div>
+
+  <!-- PROSPECT 9: ANN ANN LOW -->
+  <div class="pcard">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Ann Ann Low</div>
+        <div class="rl">Talent Strategy Professional · Technology / Corporate · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAAADvnAUBgKx4AETa1YkzheyuXtTNORYc6OA" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-blue">new · 5/10</span>
+    </div>
+    <div class="intel-grid">
+      <div class="intel-box"><div class="il">Strategic Fit</div><div class="iv">5/10 · Works with senior leaders on talent strategy, including AI tools. Good referral potential and may have active searches through her client organizations.</div></div>
+      <div class="intel-box"><div class="il">Temperature</div><div class="iv">Warm · Active on LinkedIn, mentions AI tools, interested in practical outcomes.</div></div>
+      <div class="intel-box"><div class="il">Comm Style</div><div class="iv">Analytical · Frameworks, simplicity, and practical outcomes matter to her.</div></div>
+      <div class="intel-box"><div class="il">Opener</div><div class="iv">Peer Opener · She works in talent, so shared professional ground is the right entry.</div></div>
+    </div>
+    <div class="hook-box"><div class="hl">Human Hook</div><div class="hv">"Connects talent decisions to real business outcomes for leaders in scaling and transforming organizations. She also mentors with Idea Ink and supports Reading Roots, which signals genuine people investment."</div></div>
+    <div class="seq-label">5-message sequence · drafts for your approval, nothing sent</div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">1</div><div class="msg-title">Connection Request</div><div class="msg-when">Send now</div></div><div class="msg-body">Hi Ann Ann, your work helping organizations connect talent decisions to real business outcomes, including thinking about how AI changes talent strategy, is a specific and growing space in Singapore. Would love to connect.</div><div class="msg-char">~217 chars</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">2</div><div class="msg-title">Icebreaker</div><div class="msg-when">Day 1 after acceptance</div></div><div class="msg-body">Hi Ann Ann, thanks for connecting. Your interest in how AI can support better talent decisions is interesting timing. Are you currently working with organizations that are actively building AI or data-related teams?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">3</div><div class="msg-title">Value-Add Follow-Up</div><div class="msg-when">Day 3 if no reply</div></div><div class="msg-body">Hi Ann Ann, following up. In Singapore's AI and tech space, one gap we're seeing is between what organizations say they need to hire for and what actually exists in the market. That disconnect creates friction early in the search. Is that something the leaders you work with are running into?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">4</div><div class="msg-title">The Pivot</div><div class="msg-when">Day 4 if no reply</div></div><div class="msg-body">Different angle: when organizations you partner with are struggling to hire for a new or emerging role, where does the bottleneck usually sit? The job description, the sourcing, or the decision-making process?</div></div>
+    <div class="msg"><div class="msg-head"><div class="msg-num">5</div><div class="msg-title">Clean Exit</div><div class="msg-when">Day 7 if no reply</div></div><div class="msg-body">Hi Ann Ann, I'll leave it there. If you're ever working with a team that has a specific hiring challenge in tech or healthcare and wants an external perspective, feel free to connect me. Good luck with your work.</div></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec">FLAGGED · below ICP threshold · score 3/10</div>
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- PROSPECT 10: HUITING L. - FLAGGED -->
+  <div class="pcard flag">
+    <div class="flag-banner"><strong>Flagged for your decision.</strong> Huiting L. is a Talent Acquisition Specialist across healthcare, life sciences, and tech in Singapore. If she is in-house at a company, she is a strong ICP fit and worth pursuing. If she is at an agency or consulting independently, she is a peer or competitor. I cannot confirm from her profile which it is. Recommend checking her profile before sending. Do you want to include her?</div>
+    <div class="ph">
+      <div class="ph-left">
+        <div class="nm">Huiting L.</div>
+        <div class="rl">Talent Acquisition Specialist · Healthcare / Life Sciences / Tech · Singapore</div>
+        <div class="li"><a href="https://www.linkedin.com/in/ACwAAA5nKvEBNd_mzNbDftjlr22fFgGLzrWRuTU" target="_blank" style="color:var(--primary);text-decoration:none;">View LinkedIn profile</a></div>
+      </div>
+      <span class="tagi t-red">flagged · 3/10</span>
+    </div>
+    <div style="font-size:13px;color:var(--gray-text);padding:8px 0;">10+ years recruiting across SEA in healthcare, life sciences, manufacturing, real estate, and technology. Bilingual (English and Chinese). If in-house: ICP fit jumps to 7/10. If agency-side: disqualify.</div>
+  </div>
+
+  <!-- CLOSING NOTE -->
+  <div class="note">
+    Open <b>Dawn Goh at Eastern General Hospital first.</b> She is 13 years into hospital HR in Singapore, focused on succession planning and talent management, and clinical staffing pressure is the exact pain you solve. The conversation hook writes itself. Every DM here is a draft. You send, after you read it.
+  </div>
+
+  <footer>The brain thinks. The team works. You approve. · <b>Built by Daniel Paul · Purely Personal</b></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+  window.addEventListener('load',function(){
+    if(!window.gsap)return; gsap.registerPlugin(ScrollTrigger);
+    gsap.from('.ohead',{y:26,opacity:0,scale:.98,duration:.7,ease:'power3.out'});
+    gsap.from('.ohead h1',{y:14,opacity:0,duration:.7,delay:.12,ease:'power3.out'});
+    gsap.from('.pcard,.stat,.note',{y:20,opacity:0,duration:.55,stagger:.06,ease:'power2.out',scrollTrigger:{trigger:'.doc',start:'top 85%'}});
+    gsap.utils.toArray('.count').forEach(function(el){
+      var to=+el.dataset.to,o={v:0};
+      gsap.to(o,{v:to,duration:1.4,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 92%'},onUpdate:function(){el.textContent=Math.round(o.v);}});
+    });
+  });
+</script>
+</body>
+</html>

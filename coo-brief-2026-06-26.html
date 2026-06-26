@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COO Morning Brief · 26 June 2026 · Purely Personal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#E8294C; --primary-light:#F5607A;
+    --black:#0A0A0A; --ink:#15151A; --white:#FFFFFF; --off-white:#F8F7F5;
+    --gray:#E4E3E0; --gray-text:#5b5b62; --gray-light:#F2F1EE;
+    --good:#16A34A; --warn:#D97706; --bad:#DC2626;
+    --r-md:14px; --r-lg:22px; --pill:9999px;
+    --sh:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06);
+    --grad:linear-gradient(135deg, color-mix(in srgb,var(--primary) 78%, #000) 0%, var(--primary) 48%, var(--primary-light) 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Rethink Sans',sans-serif;background:radial-gradient(80% 60% at 96% -12%, color-mix(in srgb,var(--primary) 14%, transparent), transparent 60%), radial-gradient(60% 50% at 0% 6%, color-mix(in srgb,var(--primary-light) 10%, transparent), transparent 55%), var(--off-white);background-attachment:fixed;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .doc{max-width:840px;margin:0 auto;padding:34px 22px 70px;}
+
+  .ohead{border-radius:var(--r-md);padding:26px 28px;margin-bottom:22px;color:#fff;background:var(--grad);box-shadow:0 16px 42px color-mix(in srgb,var(--primary) 30%, transparent);position:relative;overflow:hidden;}
+  .ohead::after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.10);top:-120px;right:-60px;pointer-events:none;}
+  .ohead .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.82;font-weight:600;}
+  .ohead h1{font-size:clamp(24px,4vw,32px);font-weight:800;letter-spacing:-.02em;margin:5px 0 3px;}
+  .ohead .d{font-size:13px;opacity:.85;}
+
+  .sec{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-text);font-weight:700;margin:24px 0 12px;}
+  .card{background:#fff;border:1px solid var(--gray);border-radius:var(--r-md);box-shadow:var(--sh);padding:18px 20px;margin-bottom:14px;border-left:4px solid var(--primary);}
+  .card h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-text);margin-bottom:12px;}
+  .lead{font-size:16px;}
+  .row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:15px;border-bottom:1px solid var(--gray-light);}
+  .row:last-child{border-bottom:none;}
+  .row .when{color:var(--gray-text);font-size:13px;width:74px;flex-shrink:0;}
+  .tagi{font-size:11px;font-weight:700;padding:2px 9px;border-radius:var(--pill);margin-left:auto;white-space:nowrap;}
+  .t-red{background:#fdecec;color:var(--bad);} .t-amb{background:#fdf1de;color:var(--warn);}
+  .t-grey{background:var(--gray-light);color:var(--gray-text);} .t-grn{background:#e7f6ee;color:var(--good);} .t-blue{background:#e6f0fc;color:#1E6FE0;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .stat{background:#fff;border:1px solid var(--gray);border-radius:var(--r-md);box-shadow:var(--sh);padding:18px 20px;position:relative;overflow:hidden;}
+  .stat::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
+  .stat .l{font-size:12px;color:var(--gray-text);} .stat .n{font-size:34px;font-weight:800;letter-spacing:-.02em;margin-top:4px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .stat .delta{font-size:13px;font-weight:700;margin-top:2px;} .up{color:var(--good);} .down{color:var(--bad);}
+  .empty{font-size:14px;color:var(--gray-text);font-style:italic;padding:6px 0;}
+  .connect-prompt{font-size:13px;color:var(--gray-text);background:var(--gray-light);border-radius:10px;padding:10px 14px;margin-top:4px;}
+  .connect-prompt a{color:var(--primary);font-weight:600;text-decoration:none;}
+  .note{background:linear-gradient(135deg, var(--ink) 0%, color-mix(in srgb,var(--primary) 26%, var(--ink)) 100%);color:#fff;border-radius:var(--r-md);padding:18px 22px;font-size:15px;margin-top:6px;box-shadow:0 14px 36px rgba(0,0,0,.16);}
+  .note b{color:var(--primary-light);}
+  .qbox{width:100%;border:1px dashed var(--gray);border-radius:10px;padding:12px;font-family:inherit;font-size:14px;color:var(--gray-text);background:#fff;margin-top:8px;}
+
+  footer{text-align:center;padding:30px 22px 10px;color:var(--gray-text);font-size:13px;}
+  footer b{color:var(--ink);}
+
+  @media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body data-theme="standard">
+  <div class="doc">
+
+    <!-- HEADER -->
+    <div class="ohead">
+      <div class="k">COO · Morning brief</div>
+      <h1>Good morning, Victor</h1>
+      <div class="d">Friday, 26 June 2026 · ran while you slept</div>
+    </div>
+
+    <!-- TODAY IN ONE LINE -->
+    <div class="card">
+      <h4>Today, in one line</h4>
+      <div class="lead">Your task board is clear and your inbox is quiet. Today is yours to build, not react.</div>
+    </div>
+
+    <!-- CALENDAR + INBOX -->
+    <div class="grid2">
+      <div class="card">
+        <h4>Calendar</h4>
+        <div class="connect-prompt">Connect Google Calendar to see your schedule here. Once connected, I will flag back-to-back blocks and missing links automatically.</div>
+      </div>
+
+      <div class="card">
+        <h4>Inbox · 2 unread</h4>
+        <div class="row">Figma · Get started with Figma Make<span class="tagi t-grey">fyi</span></div>
+        <div class="row">Figma · Turn your designs into conversations<span class="tagi t-grey">fyi</span></div>
+        <div class="empty" style="margin-top:8px">No urgent or starred emails in the last 7 days.</div>
+      </div>
+    </div>
+
+    <!-- OVERDUE + KEY METRIC -->
+    <div class="grid2">
+      <div class="card">
+        <h4>Overdue</h4>
+        <div class="empty">Nothing overdue. Task board is clean.</div>
+      </div>
+
+      <div class="stat">
+        <div class="l">Key Metric</div>
+        <div class="n" style="font-size:20px;padding-top:8px;color:var(--gray-text);background:none;-webkit-background-clip:unset;background-clip:unset;">Not set</div>
+        <div class="delta" style="color:var(--gray-text);font-weight:400;font-size:13px;margin-top:6px;">Add a metric to track in your Notion workspace, such as revenue, DMs sent, or profile views, and it will appear here each morning.</div>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="sec">Tasks</div>
+    <div class="card">
+      <h4>Must do today</h4>
+      <div class="empty">No tasks due today in Notion.</div>
+    </div>
+    <div class="card">
+      <h4>Content · post scheduled today</h4>
+      <div class="empty">No content scheduled for 26 June in your Notion calendar. If you have a post ready, now is a good time to publish it.</div>
+    </div>
+
+    <!-- CLOSING NOTE -->
+    <div class="note">
+      Today is a clean slate. <b>Use it intentionally.</b> No tasks, no urgent emails, no calendar blocks. Pick the one thing that will move your business forward this week and start there. What does "done" look like by 5pm?
+      <textarea class="qbox" rows="2" placeholder="Type your answer here, just for you..."></textarea>
+    </div>
+
+    <footer>The brain thinks. The team works. You approve. · <b>Built by Daniel Paul · Purely Personal</b></footer>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+    window.addEventListener('load',function(){
+      if(!window.gsap)return; gsap.registerPlugin(ScrollTrigger);
+      gsap.from('.ohead',{y:26,opacity:0,scale:.98,duration:.7,ease:'power3.out'});
+      gsap.from('.ohead h1',{y:14,opacity:0,duration:.7,delay:.12,ease:'power3.out'});
+      gsap.from('.card,.stat,.note',{y:20,opacity:0,duration:.55,stagger:.07,ease:'power2.out',scrollTrigger:{trigger:'.doc',start:'top 85%'}});
+    });
+  </script>
+</body>
+</html>

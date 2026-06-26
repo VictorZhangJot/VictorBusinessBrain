@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMO Daily Post · 26 June 2026 · Purely Personal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#E8294C; --primary-light:#F5607A;
+    --black:#0A0A0A; --ink:#15151A; --white:#FFFFFF; --off-white:#F8F7F5;
+    --gray:#E4E3E0; --gray-text:#5b5b62; --gray-light:#F2F1EE;
+    --good:#16A34A; --warn:#D97706; --bad:#DC2626;
+    --r-md:14px; --r-lg:22px; --pill:9999px;
+    --sh:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06);
+    --grad:linear-gradient(135deg, color-mix(in srgb,var(--primary) 78%, #000) 0%, var(--primary) 48%, var(--primary-light) 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Rethink Sans',sans-serif;background:radial-gradient(80% 60% at 96% -12%, color-mix(in srgb,var(--primary) 14%, transparent), transparent 60%), radial-gradient(60% 50% at 0% 6%, color-mix(in srgb,var(--primary-light) 10%, transparent), transparent 55%), var(--off-white);background-attachment:fixed;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .doc{max-width:840px;margin:0 auto;padding:34px 22px 70px;}
+
+  .ohead{border-radius:var(--r-md);padding:26px 28px;margin-bottom:22px;color:#fff;background:var(--grad);box-shadow:0 16px 42px color-mix(in srgb,var(--primary) 30%, transparent);position:relative;overflow:hidden;}
+  .ohead::after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.10);top:-120px;right:-60px;pointer-events:none;}
+  .ohead .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.82;font-weight:600;}
+  .ohead h1{font-size:clamp(22px,3.5vw,28px);font-weight:800;letter-spacing:-.02em;margin:5px 0 3px;}
+  .ohead .d{font-size:13px;opacity:.85;}
+
+  .sec{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-text);font-weight:700;margin:24px 0 12px;}
+  .card{background:#fff;border:1px solid var(--gray);border-radius:var(--r-md);box-shadow:var(--sh);padding:18px 20px;margin-bottom:14px;border-left:4px solid var(--primary);}
+  .card h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-text);margin-bottom:12px;}
+  .row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:15px;border-bottom:1px solid var(--gray-light);}
+  .row:last-child{border-bottom:none;}
+  .tagi{font-size:11px;font-weight:700;padding:2px 9px;border-radius:var(--pill);margin-left:auto;white-space:nowrap;flex-shrink:0;}
+  .t-grn{background:#e7f6ee;color:var(--good);}
+  .t-grey{background:var(--gray-light);color:var(--gray-text);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .stat{background:#fff;border:1px solid var(--gray);border-radius:var(--r-md);box-shadow:var(--sh);padding:18px 20px;position:relative;overflow:hidden;}
+  .stat::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
+  .stat .l{font-size:12px;color:var(--gray-text);} .stat .n{font-size:42px;font-weight:800;letter-spacing:-.02em;margin-top:4px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+
+  /* LinkedIn post card */
+  .lipost{background:#fff;border:1px solid var(--gray);border-radius:var(--r-md);box-shadow:var(--sh);padding:24px;}
+  .lihead{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .av{width:46px;height:46px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;}
+  .lihead .nm{font-weight:700;font-size:15px;} .lihead .mt{font-size:12px;color:var(--gray-text);}
+  .lipost .post{font-size:15px;line-height:1.75;white-space:pre-line;color:var(--ink);}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .chip{font-size:12px;font-weight:600;background:var(--gray-light);color:var(--gray-text);padding:5px 11px;border-radius:var(--pill);}
+  .score{display:inline-flex;align-items:center;gap:8px;background:#e7f6ee;color:var(--good);font-weight:700;font-size:13px;padding:6px 13px;border-radius:var(--pill);}
+
+  .note{background:linear-gradient(135deg, var(--ink) 0%, color-mix(in srgb,var(--primary) 26%, var(--ink)) 100%);color:#fff;border-radius:var(--r-md);padding:18px 22px;font-size:15px;margin-top:6px;box-shadow:0 14px 36px rgba(0,0,0,.16);}
+  .note b{color:var(--primary-light);}
+
+  footer{text-align:center;padding:30px 22px 10px;color:var(--gray-text);font-size:13px;}
+  footer b{color:var(--ink);}
+
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body data-theme="standard">
+  <div class="doc">
+
+    <!-- HEADER -->
+    <div class="ohead">
+      <div class="k">CMO · Daily post</div>
+      <h1>Today's post, in your voice</h1>
+      <div class="d">Pillar: Authority / Industry Insight · AI and Data Centre Hiring · 26 June 2026</div>
+    </div>
+
+    <!-- POST CARD -->
+    <div class="sec">The post · ready to copy and publish</div>
+    <div class="lipost">
+      <div class="lihead">
+        <div class="av">V</div>
+        <div>
+          <div class="nm">Victor Zhang · 1st</div>
+          <div class="mt">Connecting top talent to AI and Data Centre companies · now</div>
+        </div>
+      </div>
+      <div class="post">The hardest AI roles to fill have nothing to do with coding.
+(Save this + Repost if useful ♻️)
+
+The AI and data centre build-out is moving faster than most talent pipelines. Here is what is actually shifting in 2026:
+
+1. Power and electrical engineers are the most contested hire in the market. Data centres consume electricity at city scale. The people who design and manage that infrastructure are disappearing into long-term contracts before most companies even post a job.
+
+2. MLOps is splitting into two separate roles. Model deployment and model monitoring now require different skill sets. Companies posting one job for both are losing candidates to the ones that are not.
+
+3. Thermal and cooling specialists have become urgent hires. GPU density creates heat loads most facilities were not designed for. The companies that missed this are now paying emergency contractor rates to fix it.
+
+4. AI governance roles are mandatory in regulated industries. Banks, insurers, and healthcare firms are hiring compliance and safety specialists ahead of legislation. This is not optional for them.
+
+5. Senior infrastructure talent supply is lagging demand. The gap is real and widening. The fastest-moving teams are hiring for aptitude and upskilling internally rather than waiting for the perfect CV.
+
+6. Flexible arrangements are winning the talent war. Senior technical candidates in this space are turning down five-day office mandates. Firms still insisting are cycling through the same shortlist on repeat.
+
+Good luck.
+
+P.S. Hiring for AI or data centre roles? DM me TALENT and I will share what is working right now.</div>
+      <div class="chips">
+        <span class="chip">~1,420 chars</span>
+        <span class="chip">Hook: Contrarian Challenge</span>
+        <span class="chip">Variation A · Framework-Heavy</span>
+        <span class="chip">No em dashes</span>
+        <span class="chip">Intent: Educate / Authority</span>
+      </div>
+    </div>
+
+    <!-- HOOKS + PUBLISH CHECK -->
+    <div class="grid2">
+      <div class="card">
+        <h4>Hook options</h4>
+        <div class="row">The hardest AI roles to fill have nothing to do with coding.<span class="tagi t-grn">chosen</span></div>
+        <div class="row">AI hiring budgets are up. Fill rates are not.</div>
+        <div class="row">Six months ago I thought AI hiring meant software engineers. I was wrong.</div>
+        <div class="row">One job title did not exist two years ago. Every data centre wants one now.</div>
+        <div class="row">Data centres are being built faster than the people to run them exist.</div>
+      </div>
+      <div class="card">
+        <h4>Publish check</h4>
+        <div class="row">Stops the scroll<span class="tagi t-grn">✓</span></div>
+        <div class="row">Matches Voice DNA<span class="tagi t-grn">✓</span></div>
+        <div class="row">No AI tells or banned words<span class="tagi t-grn">✓</span></div>
+        <div class="row">No em dashes anywhere<span class="tagi t-grn">✓</span></div>
+        <div class="row">One specific CTA in P.S.<span class="tagi t-grn">✓</span></div>
+        <div class="row">Under 1,500 characters<span class="tagi t-grn">✓</span></div>
+      </div>
+    </div>
+
+    <!-- INVISIBILITY DIAGNOSTIC -->
+    <div class="sec">Invisibility Diagnostic</div>
+    <div class="grid2">
+      <div class="card">
+        <h4>Score breakdown</h4>
+        <div class="row">Voice · sounds like a specific human<span class="tagi t-grn">1 / 1</span></div>
+        <div class="row">POV · takes a clear position<span class="tagi t-grn">1 / 1</span></div>
+        <div class="row">Specificity · details that could not be invented<span class="tagi t-grn">1 / 1</span></div>
+        <div class="row">Asking · reader knows what to do<span class="tagi t-grn">1 / 1</span></div>
+      </div>
+      <div class="stat">
+        <div class="l">Invisibility Score</div>
+        <div class="n"><span class="count" data-to="4">0</span> / 4</div>
+      </div>
+    </div>
+
+    <!-- PINNED COMMENT OPTIONS -->
+    <div class="sec">Pinned comment options · pick one, post after publishing</div>
+    <div class="card">
+      <h4>Option 1 · Extend</h4>
+      <div style="font-size:15px;line-height:1.75;color:var(--ink)">The governance one catches people off guard the most. It is not a checkbox role. These are senior hires with real budget behind them, and the pool of people who understand both AI systems and regulatory compliance is tiny. If you are building in a regulated sector, start that search first.</div>
+    </div>
+    <div class="card">
+      <h4>Option 2 · Humanise</h4>
+      <div style="font-size:15px;line-height:1.75;color:var(--ink)">Had this conversation with multiple hiring managers recently. All said the same thing: "We know exactly what we need, we just cannot find it." The job descriptions are fine. The pipeline is the problem. That is what makes this market interesting to work in right now.</div>
+    </div>
+    <div class="card">
+      <h4>Option 3 · CTA amplifier</h4>
+      <div style="font-size:15px;line-height:1.75;color:var(--ink)">If you are building out an AI or data centre team and want a shortlist that is not the same ten names everyone else is looking at, that is exactly what I help with. DM me TALENT and we can talk through what your specific search needs.</div>
+    </div>
+
+    <!-- CLOSING NOTE -->
+    <div class="note">
+      This is a draft for your approval. <b>Review before publishing.</b> Copy the post text above directly into LinkedIn. Pick one pinned comment and post it within the first 30 minutes. Nothing here is sent automatically.
+    </div>
+
+    <footer>The brain thinks. The team works. You approve. · <b>Built by Daniel Paul · Purely Personal</b></footer>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+    window.addEventListener('load',function(){
+      if(!window.gsap)return; gsap.registerPlugin(ScrollTrigger);
+      gsap.from('.ohead',{y:26,opacity:0,scale:.98,duration:.7,ease:'power3.out'});
+      gsap.from('.ohead h1',{y:14,opacity:0,duration:.7,delay:.12,ease:'power3.out'});
+      gsap.from('.card,.stat,.lipost,.note',{y:20,opacity:0,duration:.55,stagger:.07,ease:'power2.out',scrollTrigger:{trigger:'.doc',start:'top 85%'}});
+      gsap.utils.toArray('.count').forEach(function(el){
+        var to=+el.dataset.to,o={v:0};
+        gsap.to(o,{v:to,duration:1.2,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 92%'},onUpdate:function(){el.textContent=Math.round(o.v);}});
+      });
+    });
+  </script>
+</body>
+</html>
