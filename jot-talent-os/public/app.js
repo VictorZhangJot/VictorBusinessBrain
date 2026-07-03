@@ -7,9 +7,10 @@ const state = {
   route: 'dashboard',
   routeArg: null,
   candidateQuery: '',
+  compareCandId: '',   // candidate being compared against a JD
   market: { query: '', loading: false, results: null, live: null, error: null, prereqs: {} },
-  matchContext: null, // { title, sourceLabel, prereqs, results: [{cand, score, matched, missing, notes}] }
-  review: null,       // { title, items: [{candId, score, matched, missing}], index, decisions: {candId: 'shortlist'|'reject'} }
+  matchContext: null, // { title, sourceLabel, prereqs, jdText, results: [...] }
+  review: null,       // { title, items, index, decisions }
 };
 
 /* ============================== Utilities ================================ */
@@ -38,7 +39,8 @@ function saveDb() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
     try {
-      await fetch('/api/db', { method: 'POST', body: JSON.stringify(state.db, null, 2) });
+      const body = JSON.stringify(state.db, (k, v) => (k.startsWith('__') ? undefined : v), 2);
+      await fetch('/api/db', { method: 'POST', body });
     } catch (e) { toast('Could not save — is the server running?'); }
   }, 400);
 }
@@ -57,7 +59,7 @@ const jobById = (id) => state.db.jobs.find((j) => j.id === id);
    healthcare, data centre, AI / technology, plus general business roles. */
 const TAXONOMY = [
   // Healthcare
-  { name: 'SNB Registration', syn: ['snb', 'singapore nursing board', 'registered nurse'], cert: true },
+  { name: 'SNB Registration', syn: ['snb', 'singapore nursing board', 'registered nurse', ' rn '], cert: true },
   { name: 'BCLS', syn: ['bcls', 'basic cardiac life support'], cert: true },
   { name: 'ACLS', syn: ['acls', 'advanced cardiac life support'], cert: true },
   { name: 'AHPC Registration', syn: ['ahpc', 'allied health professions council'], cert: true },
@@ -80,7 +82,11 @@ const TAXONOMY = [
   { name: 'Physiotherapy', syn: ['physiotherapy', 'physiotherapist', 'physical therapy'] },
   { name: 'Musculoskeletal Rehab', syn: ['musculoskeletal', 'msk rehab', 'orthopaedic rehab'] },
   { name: 'Geriatric Rehab', syn: ['geriatric rehab', 'community rehab'] },
-  { name: 'Medication Administration', syn: ['medication administration', 'medication management'] },
+  { name: 'Medication Administration', syn: ['medication administration', 'medication management', 'administering medication', 'administer medication'] },
+  { name: 'Post-operative Care', syn: ['post-operative', 'post operative', 'post-op', 'pacu', 'recovery nursing'] },
+  { name: 'Vital Signs Monitoring', syn: ['vital signs', 'monitoring vital'] },
+  { name: 'Infection Control', syn: ['infection control', 'infection prevention'] },
+  { name: 'Patient Education', syn: ['patient education', 'educating patients', 'health education'] },
 
   // Data centre / critical facilities
   { name: 'UPS Systems', syn: ['ups system', 'uninterruptible power', ' ups '] },
@@ -112,7 +118,7 @@ const TAXONOMY = [
   { name: 'NLP', syn: ['nlp', 'natural language processing', 'text mining'] },
   { name: 'LLM Fine-tuning', syn: ['llm', 'large language model', 'fine-tuning', 'fine tuning', 'gpt', 'prompt engineering'] },
   { name: 'Vector Databases', syn: ['vector database', 'vector db', 'pinecone', 'weaviate', 'pgvector', 'embedding'] },
-  { name: 'Machine Learning', syn: ['machine learning', 'ml model', 'ml engineering', 'deep learning'] },
+  { name: 'Machine Learning', syn: ['machine learning', 'ml model', 'ml engineering', 'deep learning', ' ml '] },
   { name: 'MLOps', syn: ['mlops', 'model serving', 'model deployment', 'ml pipeline'] },
   { name: 'Docker', syn: ['docker', 'container'] },
   { name: 'Kubernetes', syn: ['kubernetes', 'k8s', 'eks', 'gke', 'aks'] },
@@ -154,33 +160,72 @@ const EDU_LEVELS = [
   { level: 5, name: 'PhD', syn: ['phd', 'doctorate'] },
 ];
 
+/* Compiled, cached regexes for synonym matching (boundary-safe, plural- and
+   centre/center-tolerant). Space-guarded synonyms (' ml ') use substring match. */
+const _synReCache = new Map();
+function synRegex(syn, global) {
+  const key = syn + (global ? '|g' : '');
+  if (_synReCache.has(key)) return _synReCache.get(key);
+  const s = syn.trim().toLowerCase();
+  const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/cent(re|er)/g, 'cent(?:re|er)');
+  const re = new RegExp('(^|[^a-z0-9])(' + escaped + 's?)(?![a-z0-9])', global ? 'gi' : 'i');
+  _synReCache.set(key, re);
+  return re;
+}
+
 function textHasSyn(haystack, syns) {
   return syns.some((syn) => {
-    const s = syn.trim().toLowerCase();
     if (syn.startsWith(' ') || syn.endsWith(' ')) return haystack.includes(syn.toLowerCase());
-    // word-boundary-ish match to avoid "go" matching "google"; allow plural + centre/center spelling
-    const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/cent(re|er)/g, 'cent(re|er)');
-    const re = new RegExp('(^|[^a-z0-9])' + escaped + 's?($|[^a-z0-9])', 'i');
-    return re.test(haystack);
+    return synRegex(syn).test(haystack);
   });
 }
 
-/* Extract structured prerequisites from a job description. */
+function canonicalFor(text) {
+  return TAXONOMY.find((t) => textHasSyn(' ' + text.toLowerCase() + ' ', t.syn)) || null;
+}
+
+/* Sentence-level required vs preferred classification. */
+const PREF_RE = /prefer|advantage|a plus|plus point|nice to have|good to have|bonus|desirable|beneficial|would be ideal|optional/i;
+function classifyRequirement(text, syns) {
+  const lower = text.toLowerCase();
+  for (const syn of syns) {
+    const s = syn.trim().toLowerCase();
+    const idx = lower.indexOf(s);
+    if (idx === -1) continue;
+    const start = Math.max(lower.lastIndexOf('.', idx), lower.lastIndexOf('\n', idx), lower.lastIndexOf('•', idx), lower.lastIndexOf(';', idx)) + 1;
+    let end = lower.length;
+    ['.', '\n', '•', ';'].forEach((d) => {
+      const e = lower.indexOf(d, idx);
+      if (e !== -1 && e < end) end = e;
+    });
+    return PREF_RE.test(lower.slice(start, end)) ? false : true; // true = required
+  }
+  return true;
+}
+
+/* Extract structured prerequisites from a job description.
+   skills/certs are [{name, required}] — required requirements weigh double. */
 function extractPrereqs(text, apiSkills) {
-  const hay = ' ' + String(text || '').toLowerCase().replace(/\s+/g, ' ') + ' ';
+  const raw = String(text || '');
+  const hay = ' ' + raw.toLowerCase().replace(/\s+/g, ' ') + ' ';
   const skills = [];
   const certs = [];
+  const add = (bucket, name, required) => {
+    if (!bucket.some((x) => x.name === name)) bucket.push({ name, required });
+  };
 
   TAXONOMY.forEach((t) => {
-    if (textHasSyn(hay, t.syn)) (t.cert ? certs : skills).push(t.name);
+    if (textHasSyn(hay, t.syn)) add(t.cert ? certs : skills, t.name, classifyRequirement(hay, t.syn));
   });
 
-  // Fold in skills declared by the job board API that we recognise; keep unknowns too.
+  // Fold in skills declared by the job board API; keep unknowns too,
+  // but drop the noise tags MCF's auto-tagger is known to produce.
+  const JUNK_SKILLS = new Set(['pronunciation', 'photography', 'basic', 'able to work independently', 'communication', 'teamwork', 'good communication skills', 'microsoft office']);
   (apiSkills || []).forEach((s) => {
+    if (JUNK_SKILLS.has(s.trim().toLowerCase())) return;
     const canon = canonicalFor(s);
     const name = canon ? canon.name : s;
-    const bucket = canon && canon.cert ? certs : skills;
-    if (!bucket.includes(name)) bucket.push(name);
+    add(canon && canon.cert ? certs : skills, name, true);
   });
 
   // Minimum years of experience
@@ -205,21 +250,28 @@ function extractPrereqs(text, apiSkills) {
   const mentioned = EDU_LEVELS.filter((e) => textHasSyn(hay, e.syn));
   if (mentioned.length) education = mentioned.reduce((a, b) => (a.level < b.level ? a : b));
 
+  // Local work-pass restriction
+  const localOnly = /singaporean(s)? only|citizens? (and|or|\/)\s*(spr|pr)|singapore citizen|only singaporean|locals only/i.test(raw);
+
   return {
     skills,
     certs,
     minYears,
     education: education ? education.name : null,
     educationLevel: education ? education.level : null,
+    localOnly,
   };
 }
 
 /* ========================== Matching engine ============================== */
 function candidateHaystack(c) {
+  if (c.__hay) return c.__hay;
   const expText = (c.experience || []).map((e) => [e.role, e.company, ...(e.points || [])].join(' ')).join(' ');
-  return (' ' + [c.title, c.summary, (c.skills || []).join(' '), (c.certs || []).join(' '), c.education, expText]
+  c.__hay = (' ' + [c.title, c.summary, (c.skills || []).join(' '), (c.certs || []).join(' '), c.education, expText]
     .join(' ') + ' ').toLowerCase().replace(/\s+/g, ' ');
+  return c.__hay;
 }
+function invalidateCandidateCaches(c) { delete c.__hay; delete c.__tokens; }
 
 function candidateEduLevel(c) {
   const hay = ' ' + String(c.education || '').toLowerCase() + ' ';
@@ -232,55 +284,384 @@ function candidateHasSkill(c, skillName) {
   const hay = candidateHaystack(c);
   const canon = TAXONOMY.find((t) => t.name === skillName);
   if (canon) return textHasSyn(hay, canon.syn.concat([skillName.toLowerCase()]));
-  // unknown skill from a job board — match the literal phrase, tolerant of spelling variants
   return textHasSyn(hay, [skillName.toLowerCase()]);
 }
 
-/* Also canonicalise API-declared skills that arrive in plural / variant form */
-function canonicalFor(text) {
-  return TAXONOMY.find((t) => textHasSyn(' ' + text.toLowerCase() + ' ', t.syn)) || null;
+/* Where in the CV does this skill appear? Returns {where, snippet} or null. */
+function evidenceFor(c, skillName) {
+  const canon = TAXONOMY.find((t) => t.name === skillName);
+  const syns = (canon ? canon.syn.concat([skillName.toLowerCase()]) : [skillName.toLowerCase()]);
+  const hit = (text) => textHasSyn(' ' + String(text).toLowerCase() + ' ', syns);
+
+  for (const cert of (c.certs || [])) if (hit(cert)) return { where: 'Certifications', snippet: cert };
+  for (const sk of (c.skills || [])) if (hit(sk)) return { where: 'Skills', snippet: sk };
+  for (const e of (c.experience || [])) {
+    if (hit(e.role)) return { where: e.company, snippet: e.role };
+    for (const p of (e.points || [])) if (hit(p)) return { where: `${e.role} · ${e.company}`, snippet: p };
+  }
+  if (hit(c.summary || '')) {
+    const lower = c.summary.toLowerCase();
+    let idx = -1;
+    for (const syn of syns) { idx = lower.indexOf(syn.trim().toLowerCase()); if (idx !== -1) break; }
+    const start = Math.max(0, idx - 50);
+    return { where: 'Summary', snippet: (start > 0 ? '…' : '') + c.summary.slice(start, idx + 60) + '…' };
+  }
+  if (hit(c.education || '')) return { where: 'Education', snippet: c.education };
+  return null;
 }
 
-/* Score every candidate in the database against a set of prerequisites. */
-function matchCandidates(prereqs) {
+const TITLE_STOPWORDS = new Set(['senior', 'junior', 'lead', 'principal', 'assistant', 'chief', 'head', 'i', 'ii', 'iii', 'a', 'an', 'the', 'of', 'and', 'or']);
+function titleTokens(t) {
+  return String(t || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+    .filter((w) => w.length > 1 && !TITLE_STOPWORDS.has(w));
+}
+function titleSimilarity(jobTitle, candTitle) {
+  const jt = titleTokens(jobTitle);
+  if (!jt.length) return null;
+  const ct = new Set(titleTokens(candTitle));
+  const hits = jt.filter((w) => ct.has(w) || ct.has(w + 's') || ct.has(w.replace(/s$/, ''))).length;
+  return hits / jt.length;
+}
+
+/* Score every candidate against a set of prerequisites.
+   Weights: skills 45, certs 15, years 15, education 10, title 15 — required
+   skills count double vs preferred; weights renormalise when absent. */
+function matchCandidates(prereqs, opts) {
+  opts = opts || {};
   return state.db.candidates.map((c) => {
     const matched = [];
     const missing = [];
-    prereqs.skills.forEach((s) => (candidateHasSkill(c, s) ? matched : missing).push(s));
-    const matchedCerts = [];
-    const missingCerts = [];
-    prereqs.certs.forEach((s) => (candidateHasSkill(c, s) ? matchedCerts : missingCerts).push(s));
-
     const notes = [];
     let score = 0;
     let weight = 0;
+    const breakdown = [];
 
-    if (prereqs.skills.length) {
-      score += 55 * (matched.length / prereqs.skills.length);
-      weight += 55;
-    }
-    if (prereqs.certs.length) {
-      score += 15 * (matchedCerts.length / prereqs.certs.length);
-      weight += 15;
-      if (missingCerts.length) notes.push('Missing: ' + missingCerts.join(', '));
-    }
+    const scoreBucket = (items, label, maxW) => {
+      if (!items.length) return;
+      let got = 0, tot = 0;
+      // required-first ordering in chips
+      items.slice().sort((a, b) => (b.required ? 1 : 0) - (a.required ? 1 : 0)).forEach((it) => {
+        const w = it.required ? 2 : 1;
+        tot += w;
+        if (candidateHasSkill(c, it.name)) { got += w; matched.push(it.name); }
+        else missing.push(it.name + (it.required ? '' : ' (preferred)'));
+      });
+      score += maxW * (got / tot);
+      weight += maxW;
+      breakdown.push({ label, pct: Math.round((got / tot) * 100) });
+    };
+    scoreBucket(prereqs.skills, 'Skills', 45);
+    scoreBucket(prereqs.certs, 'Certifications', 15);
+
     if (prereqs.minYears != null) {
       const ratio = Math.min(1, (c.yearsExp || 0) / prereqs.minYears);
-      score += 20 * ratio;
-      weight += 20;
+      score += 15 * ratio;
+      weight += 15;
+      breakdown.push({ label: 'Experience', pct: Math.round(ratio * 100) });
       if ((c.yearsExp || 0) < prereqs.minYears) notes.push(`${c.yearsExp} yrs vs ${prereqs.minYears} required`);
     }
     if (prereqs.educationLevel) {
       const ok = candidateEduLevel(c) >= prereqs.educationLevel;
       score += 10 * (ok ? 1 : 0);
       weight += 10;
+      breakdown.push({ label: 'Education', pct: ok ? 100 : 0 });
       if (!ok) notes.push(`Education below ${prereqs.education}`);
+    }
+    if (opts.title) {
+      const sim = titleSimilarity(opts.title, c.title);
+      if (sim != null) {
+        score += 15 * sim;
+        weight += 15;
+        breakdown.push({ label: 'Title fit', pct: Math.round(sim * 100) });
+      }
+    }
+
+    // advisory flags — not scored, but a recruiter needs to see them
+    if (opts.salaryMax && c.salaryExpect && c.salaryExpect > opts.salaryMax * 1.05) {
+      notes.push(`Expects ${money(c.salaryExpect)} vs budget ${money(opts.salaryMax)}`);
+    }
+    if (prereqs.localOnly && /employment pass|ep|s pass|work permit/i.test(c.workPass || '')) {
+      notes.push(`⚠ Role is Citizens/PR only — candidate is on ${c.workPass}`);
     }
 
     const pct = weight > 0 ? Math.round((score / weight) * 100) : 0;
-    return { cand: c, score: pct, matched: matched.concat(matchedCerts), missing: missing.concat(missingCerts), notes };
+    return { cand: c, score: pct, matched, missing, notes, breakdown };
   }).sort((a, b) => b.score - a.score);
 }
+
+/* ===================== Candidate search engine ===========================
+   Multi-term AND search with taxonomy synonym expansion, typo tolerance
+   (edit distance), field-weighted ranking, and per-hit explanations. */
+function levenshtein(a, b) {
+  if (Math.abs(a.length - b.length) > 2) return 99;
+  const m = a.length, n = b.length;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+
+function candidateTokens(c) {
+  if (c.__tokens) return c.__tokens;
+  c.__tokens = Array.from(new Set((candidateHaystack(c) + ' ' + c.name.toLowerCase()).split(/[^a-z0-9+#/.&-]+/).filter((w) => w.length > 2)));
+  return c.__tokens;
+}
+
+/* Expand a search token through the taxonomy: "k8s" → kubernetes, eks…  */
+function expandToken(tok) {
+  const out = new Set([tok]);
+  TAXONOMY.forEach((t) => {
+    const names = t.syn.map((s) => s.trim().toLowerCase()).concat([t.name.toLowerCase()]);
+    if (names.includes(tok)) names.forEach((n) => out.add(n));
+  });
+  return Array.from(out);
+}
+
+const FIELD_WEIGHTS = [
+  { key: (c) => c.name, w: 6, label: 'name' },
+  { key: (c) => c.title, w: 5, label: 'title' },
+  { key: (c) => (c.skills || []).join(' • '), w: 4, label: 'skills' },
+  { key: (c) => (c.certs || []).join(' • '), w: 4, label: 'certifications' },
+  { key: (c) => c.education, w: 2, label: 'education' },
+  { key: (c) => c.summary, w: 2, label: 'summary' },
+  { key: (c) => (c.experience || []).map((e) => [e.role, e.company, ...(e.points || [])].join(' ')).join(' '), w: 1.5, label: 'experience' },
+  { key: (c) => [c.domain, c.location, c.workPass, c.availability].join(' '), w: 1, label: 'profile' },
+];
+
+function searchCandidates(query) {
+  const tokens = String(query || '').toLowerCase().split(/[\s,]+/).filter((t) => t.length > 1);
+  if (!tokens.length) {
+    return state.db.candidates.map((c) => ({ cand: c, score: 0, why: [] }));
+  }
+  const results = [];
+  state.db.candidates.forEach((c) => {
+    let total = 0;
+    const why = [];
+    let allHit = true;
+    for (const tok of tokens) {
+      const variants = expandToken(tok);
+      let best = 0;
+      let bestWhy = null;
+      for (const f of FIELD_WEIGHTS) {
+        const text = ' ' + String(f.key(c) || '').toLowerCase() + ' ';
+        for (const v of variants) {
+          // short tokens must match whole words ("rn" must not hit "learning")
+          const hit = v.length <= 3 ? synRegex(v).test(text) : text.includes(v);
+          if (hit) {
+            const wScore = f.w * (v === tok ? 1 : 0.9); // synonym hits score slightly lower
+            if (wScore > best) {
+              best = wScore;
+              bestWhy = v === tok ? `“${tok}” in ${f.label}` : `“${tok}” → ${v} (${f.label})`;
+            }
+          }
+        }
+      }
+      // fuzzy fallback: token vs candidate token set
+      if (!best && tok.length >= 5) {
+        const maxDist = tok.length >= 8 ? 2 : 1;
+        const fuzzy = candidateTokens(c).find((w) => levenshtein(tok, w) <= maxDist);
+        if (fuzzy) { best = 1.5; bestWhy = `“${tok}” ≈ ${fuzzy}`; }
+      }
+      if (!best) { allHit = false; break; }
+      total += best;
+      if (bestWhy) why.push(bestWhy);
+    }
+    if (allHit) results.push({ cand: c, score: total, why });
+  });
+  return results.sort((a, b) => b.score - a.score);
+}
+
+/* ==================== JD annotation + 3D hover card ====================== */
+/* Find every requirement mention in a JD, with positions, for highlighting. */
+function findRequirementRanges(text) {
+  const ranges = [];
+  const scan = (re, name, kind, extra) => {
+    let m;
+    re.lastIndex = 0;
+    while ((m = re.exec(text)) !== null) {
+      const lead = m[1] != null ? m[1].length : 0;
+      const body = m[2] != null ? m[2] : m[0];
+      ranges.push(Object.assign({ start: m.index + lead, end: m.index + lead + body.length, name, kind }, extra || {}));
+      if (m.index === re.lastIndex) re.lastIndex++;
+    }
+  };
+  TAXONOMY.forEach((t) => {
+    t.syn.forEach((syn) => {
+      const s = syn.trim();
+      if (s.length < 2) return;
+      scan(synRegex(syn, true), t.name, t.cert ? 'cert' : 'skill');
+    });
+  });
+  // years-of-experience phrases (capture the number for comparison)
+  [
+    /()((?:minimum|min\.?|at least)\s*(?:of\s*)?\d{1,2}\s*(?:\+|or more)?\s*years?(?:['’]?\s*(?:of\s*)?(?:relevant|related|working|hands-on|prior)?\s*experience)?)/gi,
+    /()(\d{1,2}\s*\+\s*years?(?:['’]?\s*(?:of\s*)?experience)?)/gi,
+    /()(\d{1,2}\s*(?:to|-|–)\s*\d{1,2}\s*years?(?:['’]?\s*(?:of\s*)?experience)?)/gi,
+  ].forEach((re) => {
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      const years = parseInt((m[2].match(/\d{1,2}/) || ['0'])[0], 10);
+      if (years > 0 && years <= 30) {
+        ranges.push({ start: m.index, end: m.index + m[2].length, name: `${years}+ years experience`, kind: 'years', years });
+      }
+      if (m.index === re.lastIndex) re.lastIndex++;
+    }
+  });
+  // education keywords
+  EDU_LEVELS.forEach((e) => {
+    e.syn.forEach((syn) => {
+      if (syn.trim().length < 3) return;
+      let m;
+      const re = synRegex(syn, true);
+      re.lastIndex = 0;
+      while ((m = re.exec(text)) !== null) {
+        const lead = m[1] != null ? m[1].length : 0;
+        ranges.push({ start: m.index + lead, end: m.index + lead + m[2].length, name: e.name, kind: 'edu', level: e.level });
+        if (m.index === re.lastIndex) re.lastIndex++;
+      }
+    });
+  });
+  // resolve overlaps: prefer earlier start, then longer match
+  ranges.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+  const out = [];
+  let lastEnd = -1;
+  for (const r of ranges) {
+    if (r.start >= lastEnd) { out.push(r); lastEnd = r.end; }
+  }
+  return out;
+}
+
+function candidateMeetsRange(c, r) {
+  if (r.kind === 'years') return (c.yearsExp || 0) >= r.years;
+  if (r.kind === 'edu') return candidateEduLevel(c) >= r.level;
+  return candidateHasSkill(c, r.name);
+}
+
+/* Render JD text with requirement highlights. If cand is given, marks are
+   coloured green (candidate has it) / red (missing). */
+function annotateJD(text, cand) {
+  const ranges = findRequirementRanges(text);
+  let out = '';
+  let pos = 0;
+  ranges.forEach((r) => {
+    out += esc(text.slice(pos, r.start));
+    let cls = `hl hl-${r.kind}`;
+    if (cand) cls += candidateMeetsRange(cand, r) ? ' hl-hit' : ' hl-miss';
+    const extra = (r.years ? ` data-years="${r.years}"` : '') + (r.level ? ` data-level="${r.level}"` : '') + (cand ? ` data-cand="${cand.id}"` : '');
+    out += `<mark class="${cls}" data-hover="req" data-name="${esc(r.name)}" data-kind="${r.kind}"${extra}>${esc(text.slice(r.start, r.end))}</mark>`;
+    pos = r.end;
+  });
+  out += esc(text.slice(pos));
+  return out;
+}
+
+const KIND_LABELS = { skill: 'Skill requirement', cert: 'Certification / registration', years: 'Experience requirement', edu: 'Education requirement' };
+
+function hlLegend(compare) {
+  if (compare) {
+    return `<div class="hl-legend">
+      <span><span class="hl-dot" style="background:var(--green-soft); border:1px solid var(--green)"></span> candidate has this</span>
+      <span><span class="hl-dot" style="background:var(--red-soft); border:1px solid var(--red)"></span> missing</span>
+      <span class="faint">hover any highlight for evidence</span>
+    </div>`;
+  }
+  return `<div class="hl-legend">
+    <span><span class="hl-dot" style="background:#EFEAF7"></span> skill</span>
+    <span><span class="hl-dot" style="background:var(--accent-soft)"></span> certification</span>
+    <span><span class="hl-dot" style="background:var(--blue-soft)"></span> experience</span>
+    <span><span class="hl-dot" style="background:var(--amber-soft)"></span> education</span>
+    <span class="faint">hover any highlight to see who in your database matches</span>
+  </div>`;
+}
+
+/* --- singleton hover card ------------------------------------------------ */
+let hovercardEl = null;
+function ensureHovercard() {
+  if (!hovercardEl) {
+    hovercardEl = document.createElement('div');
+    hovercardEl.className = 'hovercard';
+    hovercardEl.id = 'hovercard';
+    document.body.appendChild(hovercardEl);
+  }
+  return hovercardEl;
+}
+
+function hovercardContentForRequirement(el) {
+  const name = el.dataset.name;
+  const kind = el.dataset.kind;
+  const years = el.dataset.years ? parseInt(el.dataset.years, 10) : null;
+  const level = el.dataset.level ? parseInt(el.dataset.level, 10) : null;
+  const range = { name, kind, years, level };
+  const head = `<div class="hc-kind">${esc(KIND_LABELS[kind] || 'Requirement')}</div><div class="hc-title">${esc(name)}</div>`;
+
+  if (el.dataset.cand) {
+    const c = candById(el.dataset.cand);
+    if (!c) return head;
+    const ok = candidateMeetsRange(c, range);
+    let evHtml = '';
+    if (ok) {
+      if (kind === 'years') evHtml = `<div class="hc-body">${esc(c.name.split(' ')[0])} has <b>${c.yearsExp} years</b> of experience.</div>`;
+      else if (kind === 'edu') evHtml = `<div class="hc-body">${esc(c.education || '')}</div>`;
+      else {
+        const ev = evidenceFor(c, name);
+        if (ev) evHtml = `<div class="hc-body">Found in <b>${esc(ev.where)}</b>:<div class="hc-ev">“${esc(ev.snippet)}”</div></div>`;
+      }
+    } else {
+      if (kind === 'years') evHtml = `<div class="hc-body">Profile shows <b>${c.yearsExp} years</b> — below this requirement.</div>`;
+      else if (kind === 'edu') evHtml = `<div class="hc-body">Profile education: ${esc(c.education || 'not recorded')}.</div>`;
+      else evHtml = `<div class="hc-body">Not found anywhere in ${esc(c.name.split(' ')[0])}’s profile.</div>`;
+    }
+    return head + `<span class="hc-status ${ok ? 'hc-hit' : 'hc-miss'}">${ok ? '✓ ' + esc(c.name.split(' ')[0]) + ' has this' : '✗ Missing'}</span>` + evHtml;
+  }
+
+  // no compare candidate → who in the database matches?
+  const matches = state.db.candidates.filter((c) => candidateMeetsRange(c, range));
+  const names = matches.slice(0, 5).map((c) => c.name).join(', ');
+  return head + `
+    <span class="hc-status ${matches.length ? 'hc-hit' : 'hc-miss'}">${matches.length} of ${state.db.candidates.length} candidates match</span>
+    <div class="hc-body hc-names">${matches.length ? `<b>${esc(names)}</b>${matches.length > 5 ? ` +${matches.length - 5} more` : ''}` : 'Nobody in the database has this yet — a sourcing gap.'}</div>`;
+}
+
+function hovercardContentForEvidence(el) {
+  const c = candById(el.dataset.cand);
+  const name = el.dataset.name;
+  if (!c) return '';
+  const head = `<div class="hc-kind">Match evidence</div><div class="hc-title">${esc(name)}</div>`;
+  const ev = evidenceFor(c, name);
+  if (ev) return head + `<span class="hc-status hc-hit">✓ Verified in profile</span><div class="hc-body">Found in <b>${esc(ev.where)}</b>:<div class="hc-ev">“${esc(ev.snippet)}”</div></div>`;
+  return head + `<span class="hc-status hc-miss">✗ Not in profile</span><div class="hc-body">No mention found in ${esc(c.name.split(' ')[0])}’s CV.</div>`;
+}
+
+document.addEventListener('mouseover', (e) => {
+  const el = e.target.closest && e.target.closest('[data-hover]');
+  if (!el) return;
+  const card = ensureHovercard();
+  card.innerHTML = el.dataset.hover === 'ev' ? hovercardContentForEvidence(el) : hovercardContentForRequirement(el);
+  const rect = el.getBoundingClientRect();
+  card.classList.remove('show', 'above');
+  card.style.left = Math.max(8, Math.min(window.innerWidth - 316, rect.left + rect.width / 2 - 150)) + 'px';
+  // measure after content set
+  card.style.top = '-9999px';
+  card.style.display = 'block';
+  const h = card.offsetHeight;
+  if (rect.bottom + h + 16 > window.innerHeight && rect.top - h - 12 > 0) {
+    card.style.top = (rect.top - h - 10) + 'px';
+    card.classList.add('above');
+  } else {
+    card.style.top = (rect.bottom + 8) + 'px';
+  }
+  card.getBoundingClientRect(); // force reflow so the pop transition always plays
+  card.classList.add('show');
+});
+document.addEventListener('mouseout', (e) => {
+  if (e.target.closest && e.target.closest('[data-hover]') && hovercardEl) hovercardEl.classList.remove('show');
+});
+window.addEventListener('scroll', () => { if (hovercardEl) hovercardEl.classList.remove('show'); }, true);
 
 /* ============================== Router =================================== */
 const VIEWS = {};
@@ -297,9 +678,8 @@ function navigate() {
 window.addEventListener('hashchange', navigate);
 
 function render() {
+  if (hovercardEl) hovercardEl.classList.remove('show');
   $('#main').innerHTML = VIEWS[state.route](state.routeArg);
-  const fn = window['after_' + state.route];
-  if (typeof fn === 'function') fn();
 }
 
 /* ============================== Dashboard ================================ */
@@ -515,6 +895,18 @@ function jobDetail(id) {
   const cl = clientById(j.clientId);
   const prereqs = extractPrereqs(j.description);
   const pipeline = Object.entries(j.pipeline || {});
+  const compareCand = state.compareCandId ? candById(state.compareCandId) : null;
+
+  // ranked dropdown so the best-fit candidates appear first
+  const ranked = matchCandidates(prereqs, { title: j.title, salaryMax: j.salaryMax });
+  let compareSummary = '';
+  if (compareCand) {
+    const ranges = findRequirementRanges(j.description);
+    const met = ranges.filter((r) => candidateMeetsRange(compareCand, r)).length;
+    compareSummary = `<span class="chip ${met / Math.max(1, ranges.length) >= 0.6 ? 'chip-hit' : 'chip-miss'}" style="font-size:12px">
+      ${esc(compareCand.name.split(' ')[0])} meets ${met} of ${ranges.length} highlighted requirements</span>`;
+  }
+
   return `
   <a class="back-link" href="#/jobs">← All job orders</a>
   <div class="page-head">
@@ -529,8 +921,17 @@ function jobDetail(id) {
   <div class="grid grid-2" style="align-items:start">
     <div class="stack">
       <div class="card">
-        <div class="section-title">Job description</div>
-        <div class="cv-summary" style="white-space:pre-wrap">${esc(j.description)}</div>
+        <div class="section-title">Job description — requirements highlighted</div>
+        ${hlLegend(!!compareCand)}
+        <div class="cv-summary" style="white-space:pre-wrap">${annotateJD(j.description, compareCand)}</div>
+        <div class="compare-bar">
+          <span class="small muted">Compare against:</span>
+          <select class="input" style="width:260px; padding:6px 9px; font-size:12.5px" onchange="setCompare(this.value)">
+            <option value="">— nobody (show requirement types) —</option>
+            ${ranked.map((r) => `<option value="${r.cand.id}" ${state.compareCandId === r.cand.id ? 'selected' : ''}>${esc(r.cand.name)} — ${r.score}%</option>`).join('')}
+          </select>
+          ${compareSummary}
+        </div>
         <div class="prereq-box">
           <div class="prereq-label">Prerequisites detected by TalentOS</div>
           ${renderPrereqs(prereqs)}
@@ -556,12 +957,19 @@ function jobDetail(id) {
   </div>`;
 }
 
+window.setCompare = (candId) => {
+  state.compareCandId = candId;
+  render();
+};
+
 function renderPrereqs(p) {
   const bits = [];
   if (p.minYears != null) bits.push(`<span class="chip chip-blue">≥ ${p.minYears} years experience</span>`);
   if (p.education) bits.push(`<span class="chip chip-blue">Min. ${esc(p.education)}</span>`);
-  p.certs.forEach((c) => bits.push(`<span class="chip chip-accent">✓ ${esc(c)}</span>`));
-  p.skills.forEach((s) => bits.push(`<span class="chip">${esc(s)}</span>`));
+  if (p.localOnly) bits.push(`<span class="chip chip-miss">Citizens / PR only</span>`);
+  const item = (x, accent) => `<span class="chip ${accent ? 'chip-accent' : ''} ${x.required ? 'chip-req' : 'chip-pref'}" title="${x.required ? 'Required' : 'Preferred'}">${accent ? '✓ ' : ''}${esc(x.name)}${x.required ? '' : ' <span class="faint">(pref.)</span>'}</span>`;
+  p.certs.slice().sort((a, b) => (b.required ? 1 : 0) - (a.required ? 1 : 0)).forEach((c) => bits.push(item(c, true)));
+  p.skills.slice().sort((a, b) => (b.required ? 1 : 0) - (a.required ? 1 : 0)).forEach((s) => bits.push(item(s, false)));
   return bits.join('') || '<span class="muted small">Nothing detected — add more detail to the description.</span>';
 }
 
@@ -619,10 +1027,11 @@ window.matchForJob = (jobId) => {
   const prereqs = extractPrereqs(j.description);
   state.matchContext = {
     title: j.title,
-    sourceLabel: 'Job order · ' + (clientById(j.clientId) || {}).name,
+    sourceLabel: 'Job order · ' + ((clientById(j.clientId) || {}).name || ''),
     jobId,
+    jdText: j.description,
     prereqs,
-    results: matchCandidates(prereqs),
+    results: matchCandidates(prereqs, { title: j.title, salaryMax: j.salaryMax }),
   };
   location.hash = '#/matches';
 };
@@ -630,14 +1039,13 @@ window.matchForJob = (jobId) => {
 /* ============================== Candidates =============================== */
 VIEWS.candidates = (arg) => {
   if (arg) return candidateDetail(arg);
-  const q = state.candidateQuery.toLowerCase();
-  const list = state.db.candidates.filter((c) =>
-    !q || candidateHaystack(c).includes(q) || c.name.toLowerCase().includes(q));
+  const hits = searchCandidates(state.candidateQuery);
+  const hasQuery = state.candidateQuery.trim().length > 1;
   return `
   <div class="page-head">
     <div>
       <div class="page-title">Candidates</div>
-      <div class="page-desc">Your internal database. Search by skill, title or name, then review CVs with the arrow keys.</div>
+      <div class="page-desc">Search understands synonyms (“k8s” finds Kubernetes, “RN” finds nurses), tolerates typos, and ranks by relevance. Then review the stack with the arrow keys.</div>
     </div>
     <div style="display:flex; gap:8px">
       <button class="btn" onclick="reviewCandidateList()">⇅ Review these CVs</button>
@@ -646,22 +1054,26 @@ VIEWS.candidates = (arg) => {
   </div>
   <div id="add-cand-slot"></div>
   <div class="search-row">
-    <input class="input" id="cand-search" placeholder="Search — try “ICU”, “Kubernetes”, “chiller”, “SNB”…" value="${esc(state.candidateQuery)}" oninput="onCandSearch(this.value)">
-    <span class="muted small" style="align-self:center">${list.length} of ${state.db.candidates.length}</span>
+    <input class="input" id="cand-search" placeholder="Try “icu nurse”, “k8s aws”, “chiller comissioning” (typos are fine)…" value="${esc(state.candidateQuery)}" oninput="onCandSearch(this.value)">
+    <span class="muted small" style="align-self:center">${hits.length} of ${state.db.candidates.length}${hasQuery ? ' · ranked by relevance' : ''}</span>
   </div>
   <div class="card" style="padding:0">
     <table class="table">
       <thead><tr><th>Candidate</th><th>Domain</th><th>Experience</th><th>Key skills</th><th>Expects</th><th>Availability</th></tr></thead>
       <tbody>
-      ${list.map((c) => `
+      ${hits.map(({ cand: c, why }) => `
         <tr class="clickable" onclick="location.hash='#/candidates/${c.id}'">
-          <td><div class="row-title">${esc(c.name)}</div><div class="row-sub">${esc(c.title)} · ${esc(c.workPass)}</div></td>
+          <td>
+            <div class="row-title">${esc(c.name)}</div>
+            <div class="row-sub">${esc(c.title)} · ${esc(c.workPass)}</div>
+            ${why.length ? `<div class="why-line">matched: ${esc(why.join(' · '))}</div>` : ''}
+          </td>
           <td>${esc(c.domain)}</td>
           <td>${c.yearsExp} yrs</td>
           <td>${(c.skills || []).slice(0, 3).map((s) => `<span class="chip">${esc(s)}</span>`).join('')}</td>
           <td>${money(c.salaryExpect)}</td>
           <td class="small muted">${esc(c.availability)}</td>
-        </tr>`).join('') || '<tr><td colspan="6"><div class="empty">No candidates match that search.</div></td></tr>'}
+        </tr>`).join('') || '<tr><td colspan="6"><div class="empty">No candidates match that search — even with fuzzy matching.</div></td></tr>'}
       </tbody>
     </table>
   </div>`;
@@ -669,7 +1081,6 @@ VIEWS.candidates = (arg) => {
 
 window.onCandSearch = (v) => {
   state.candidateQuery = v;
-  // re-render but keep focus in the search box
   const pos = $('#cand-search').selectionStart;
   render();
   const el = $('#cand-search');
@@ -678,13 +1089,11 @@ window.onCandSearch = (v) => {
 };
 
 window.reviewCandidateList = () => {
-  const q = state.candidateQuery.toLowerCase();
-  const list = state.db.candidates.filter((c) =>
-    !q || candidateHaystack(c).includes(q) || c.name.toLowerCase().includes(q));
-  if (!list.length) return toast('No candidates to review');
+  const hits = searchCandidates(state.candidateQuery);
+  if (!hits.length) return toast('No candidates to review');
   startReview({
-    title: q ? `Search: “${state.candidateQuery}”` : 'All candidates',
-    items: list.map((c) => ({ candId: c.id })),
+    title: state.candidateQuery.trim() ? `Search: “${state.candidateQuery}”` : 'All candidates',
+    items: hits.map((h) => ({ candId: h.cand.id })),
   });
 };
 
@@ -757,7 +1166,7 @@ VIEWS.market = () => {
   <div class="page-head">
     <div>
       <div class="page-title">Market Intelligence</div>
-      <div class="page-desc">Live job listings from MyCareersFuture Singapore. TalentOS reads each posting, extracts the prerequisites, and matches them against your candidate database.</div>
+      <div class="page-desc">Live job listings from MyCareersFuture Singapore. TalentOS reads each posting, highlights the requirements inline, and matches them against your candidate database.</div>
     </div>
   </div>
   <div class="search-row">
@@ -790,7 +1199,7 @@ function marketResults() {
           <div class="row-sub">${esc(job.company)}</div>
         </div>
         <div style="display:flex; gap:8px; flex-shrink:0">
-          ${p ? '' : `<button class="btn btn-sm" onclick="extractForJob('${job.id}')">Extract prerequisites</button>`}
+          ${p ? '' : `<button class="btn btn-sm" onclick="extractForJob('${job.id}')">Extract &amp; highlight</button>`}
           <button class="btn btn-sm btn-primary" onclick="matchForMarketJob('${job.id}')">◉ Match candidates</button>
           <button class="btn btn-sm" onclick="importMarketJob('${job.id}')">Import as job order</button>
         </div>
@@ -804,8 +1213,10 @@ function marketResults() {
         ${job.postedDate ? `<span>Posted ${esc(job.postedDate)}</span>` : ''}
         ${job.url ? `<a href="${esc(job.url)}" target="_blank" style="color:var(--accent-dark)">View posting ↗</a>` : ''}
       </div>
-      <div class="small muted" style="line-height:1.55; max-height:${p ? 'none' : '60px'}; overflow:hidden">${esc(job.description.slice(0, p ? 2200 : 320))}${job.description.length > 320 ? '…' : ''}</div>
-      ${p ? `<div class="prereq-box"><div class="prereq-label">Prerequisites detected</div>${renderPrereqs(p)}</div>` : ''}
+      ${p
+        ? `${hlLegend(false)}<div class="small" style="line-height:1.6; white-space:pre-wrap; color:var(--text-soft)">${annotateJD(job.description.slice(0, 2600))}${job.description.length > 2600 ? '…' : ''}</div>
+           <div class="prereq-box"><div class="prereq-label">Prerequisites detected</div>${renderPrereqs(p)}</div>`
+        : `<div class="small muted" style="line-height:1.55; max-height:60px; overflow:hidden">${esc(job.description.slice(0, 320))}${job.description.length > 320 ? '…' : ''}</div>`}
     </div>`;
   }).join('')}
   </div>`;
@@ -871,8 +1282,9 @@ window.matchForMarketJob = async (id) => {
     title: job.title,
     sourceLabel: 'Live market · ' + job.company,
     marketJobId: id,
+    jdText: job.description,
     prereqs,
-    results: matchCandidates(prereqs),
+    results: matchCandidates(prereqs, { title: job.title, salaryMax: job.salaryMax }),
   };
   location.hash = '#/matches';
 };
@@ -911,12 +1323,12 @@ VIEWS.matches = () => {
   <div class="page-head">
     <div>
       <div class="page-title">Matches — ${esc(mc.title)}</div>
-      <div class="page-desc">${esc(mc.sourceLabel)} · ${strong} strong matches out of ${mc.results.length} candidates scored.</div>
+      <div class="page-desc">${esc(mc.sourceLabel)} · ${strong} strong matches out of ${mc.results.length} candidates scored. Hover any green chip for the evidence in the CV.</div>
     </div>
     <button class="btn btn-primary" onclick="reviewMatches()">⇅ Review CVs with arrow keys</button>
   </div>
   <div class="card" style="margin-bottom:14px">
-    <div class="prereq-label">Matching against these prerequisites</div>
+    <div class="prereq-label">Matching against these prerequisites — bold = required, dashed = preferred</div>
     ${renderPrereqs(mc.prereqs)}
   </div>
   <div class="stack">
@@ -932,8 +1344,16 @@ VIEWS.matches = () => {
           ${mc.jobId ? `<button class="btn btn-sm" onclick="addToPipeline('${mc.jobId}','${r.cand.id}')">+ Pipeline</button>` : ''}
         </div>
         <div style="margin-top:8px">
-          ${r.matched.map((s) => `<span class="chip chip-hit">✓ ${esc(s)}</span>`).join('')}
+          ${r.matched.map((s) => `<span class="chip chip-hit" data-hover="ev" data-cand="${r.cand.id}" data-name="${esc(s)}">✓ ${esc(s)}</span>`).join('')}
           ${r.missing.map((s) => `<span class="chip chip-miss">✗ ${esc(s)}</span>`).join('')}
+        </div>
+        <div class="bd-rows">
+          ${r.breakdown.map((b) => `
+            <div class="bd-row">
+              <div class="bd-label">${esc(b.label)}</div>
+              <div class="bd-track"><div class="bd-fill ${b.pct >= 70 ? 'bd-hi' : b.pct < 35 ? 'bd-lo' : ''}" style="width:${b.pct}%"></div></div>
+              <div class="bd-val">${b.pct}%</div>
+            </div>`).join('')}
         </div>
         ${r.notes.length ? `<div class="small muted" style="margin-top:6px">${esc(r.notes.join(' · '))}</div>` : ''}
       </div>
@@ -1034,8 +1454,8 @@ VIEWS.review = () => {
       </div>
       ${item.matched ? `
       <div class="review-match-strip">
-        <div class="prereq-label">Fit against “${esc(r.title.replace('Matches — ', ''))}”${item.score != null ? ` — ${item.score}% match` : ''}</div>
-        ${item.matched.map((s) => `<span class="chip chip-hit">✓ ${esc(s)}</span>`).join('')}
+        <div class="prereq-label">Fit against “${esc(r.title.replace('Matches — ', ''))}”${item.score != null ? ` — ${item.score}% match` : ''} · hover ✓ chips for evidence</div>
+        ${item.matched.map((s) => `<span class="chip chip-hit" data-hover="ev" data-cand="${c.id}" data-name="${esc(s)}">✓ ${esc(s)}</span>`).join('')}
         ${item.missing.map((s) => `<span class="chip chip-miss">✗ ${esc(s)}</span>`).join('')}
       </div>` : ''}
       <div class="cv-sheet">${cvBody(c)}</div>
