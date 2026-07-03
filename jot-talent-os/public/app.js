@@ -1466,6 +1466,60 @@ VIEWS.talentmap = (arg) => {
   </div>`;
 };
 
+/* Infer a seniority band from a job title so people stack into org layers. */
+const ORG_LEVELS = [
+  { level: 1, label: 'Leadership', re: /chief|director|vice president|\bvp\b|head of|c-suite|ceo|coo|cto|cio|general manager|managing/i },
+  { level: 2, label: 'Management & leads', re: /manager|\blead\b|principal|clinician|superintendent|supervisor|charge nurse|commissioning lead/i },
+  { level: 3, label: 'Senior professionals', re: /senior|\bsr\.?\b|specialist|staff\s+(\w+\s+)?engineer/i }, // "Staff Engineer" is senior in tech; "Staff Nurse" is not
+  { level: 4, label: 'Team / individual contributors', re: /./ },
+];
+function seniorityLevel(title) {
+  const t = String(title || '');
+  for (const l of ORG_LEVELS) if (l.re.test(t)) return l.level;
+  return 4;
+}
+
+/* Organisational chart for a company — built from the intel you actually
+   hold: candidates inside now + hunt targets. Empty layers are hunting gaps. */
+function orgChart(co) {
+  const nodes = [];
+  co.current.forEach((r) => nodes.push({ kind: 'current', name: r.cand.name, title: r.role, level: seniorityLevel(r.role), candId: r.cand.id }));
+  co.targets.filter((t) => t.status !== 'Do not contact').forEach((t) =>
+    nodes.push({ kind: 'target', name: t.name, title: t.title || 'Unknown role', level: seniorityLevel(t.title), status: t.status }));
+
+  const initials = (name) => esc(String(name).replace(/\[.*?\]\s*/, '').split(' ').map((w) => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase());
+
+  const levelHtml = ORG_LEVELS.map((l) => {
+    const here = nodes.filter((n) => n.level === l.level);
+    const cards = here.map((n) => n.kind === 'current'
+      ? `<div class="org-node on-current" onclick="location.hash='#/candidates/${n.candId}'" title="In your candidate database — open profile">
+          <div class="avatar ok">${initials(n.name)}</div>
+          <div><div class="org-name">${esc(n.name)}</div><div class="org-role">${esc(n.title)}</div><div class="org-tag t-current">✓ In your database</div></div>
+        </div>`
+      : `<div class="org-node on-target" title="Hunt target — ${esc(n.status)}">
+          <div class="avatar hunt">◎</div>
+          <div><div class="org-name">${esc(n.name)}</div><div class="org-role">${esc(n.title)}</div><div class="org-tag t-target">◎ Hunting · ${esc(n.status)}</div></div>
+        </div>`).join('');
+    const empty = here.length ? '' : `
+      <div class="org-node on-empty" onclick="showAddTarget('${esc(co.name)}')" title="No intel at this level yet — add a hunt target">
+        <div><div class="org-name">No coverage</div><div class="org-role">hunt here — click to add a target</div></div>
+      </div>`;
+    return `<div class="org-level"><div class="org-label">${l.label}</div><div class="org-nodes">${cards}${empty}</div></div>`;
+  }).join('');
+
+  return `
+  <div class="card" style="margin-bottom:14px">
+    <div class="section-title">Organisational view — ${esc(co.name)}</div>
+    <div class="small muted" style="margin-bottom:6px">Built from your intel: layers are inferred from job titles. Dashed boxes are blind spots in the org — the levels you have nobody in and nobody targeted.</div>
+    <div class="org-chart">${levelHtml}</div>
+    <div class="org-legend">
+      <span><span class="hl-dot" style="background:var(--green-soft); border:1.5px solid var(--green)"></span> your candidate inside</span>
+      <span><span class="hl-dot" style="background:var(--accent-soft); border:1.5px solid var(--accent)"></span> hunt target</span>
+      <span><span class="hl-dot" style="background:var(--bg); border:1.5px dashed var(--border-strong)"></span> no coverage yet</span>
+    </div>
+  </div>`;
+}
+
 function companyDetail(key) {
   const map = buildCompanyMap();
   const co = map.get(key);
@@ -1498,6 +1552,7 @@ function companyDetail(key) {
     </div>
   </div>
   <div id="add-target-slot"></div>
+  ${orgChart(co)}
   <div class="grid grid-2" style="align-items:start">
     <div class="stack">
       <div class="card">
