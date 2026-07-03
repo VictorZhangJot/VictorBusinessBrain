@@ -840,5 +840,40 @@
       "refId": "cand-003"
     }
   ],
-  "shortlists": []
+  "shortlists": [],
+  "targets": [
+    {
+      "id": "tgt-001",
+      "name": "[Example] Adrian Pang",
+      "title": "Senior Critical Facilities Engineer",
+      "company": "Equinix",
+      "linkedin": "",
+      "source": "LinkedIn x-ray search",
+      "status": "Identified",
+      "notes": "Fictional example - replace with a real person. 6 yrs at Equinix, CDCP-certified per profile.",
+      "addedDate": "2026-07-04"
+    },
+    {
+      "id": "tgt-002",
+      "name": "[Example] Melissa Chong",
+      "title": "Nurse Clinician (Oncology)",
+      "company": "National Cancer Centre",
+      "linkedin": "",
+      "source": "Referral intel",
+      "status": "Approached",
+      "notes": "Fictional example - replace with a real person.",
+      "addedDate": "2026-07-04"
+    },
+    {
+      "id": "tgt-003",
+      "name": "[Example] Deepak Sharma",
+      "title": "Staff ML Engineer",
+      "company": "Grab",
+      "linkedin": "",
+      "source": "Conference speaker list",
+      "status": "In conversation",
+      "notes": "Fictional example - replace with a real person. Spoke at AI DevDay 2026.",
+      "addedDate": "2026-07-04"
+    }
+  ]
 }

@@ -121,6 +121,8 @@ function normalizeMCF(raw) {
       source: 'MyCareersFuture',
       title: r.title || 'Untitled role',
       company: (r.postedCompany && r.postedCompany.name) || (r.hiringCompany && r.hiringCompany.name) || 'Undisclosed employer',
+      postedBy: (r.postedCompany && r.postedCompany.name) || null,
+      hiringFor: (r.hiringCompany && r.hiringCompany.name) || null,
       salaryMin: salary.minimum || null,
       salaryMax: salary.maximum || null,
       salaryType: (salary.type && salary.type.salaryType) || 'Monthly',

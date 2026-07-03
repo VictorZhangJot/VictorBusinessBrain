@@ -1160,13 +1160,42 @@ window.saveNewCandidate = () => {
 };
 
 /* ============================ Market Intel =============================== */
+/* Agency vs direct-employer classification. Postings by recruitment agencies
+   are competitor intel; postings by direct employers are BD prospects. */
+const KNOWN_AGENCIES = [
+  'allied search', 'kerry consulting', 'robert walters', 'michael page', 'page personnel',
+  'hays', 'randstad', 'adecco', 'persolkelly', 'kelly services', 'manpower staffing',
+  'recruit express', 'recruitfirst', 'scientec', 'talentvis', 'achieve career', 'gmp',
+  'people profilers', 'jac recruitment', 'reeracoen', 'pasona', 'rgf', 'en world',
+  'charterhouse', 'morgan mckinley', 'ambition', 'argyll scott', 'ethos beathchapman',
+  'trust recruit', 'search personnel', 'good job creations', 'bgc group', 'mci career',
+  'eps consultants', 'dynamic human capital', 'cornerstone global', 'elitez', 'jobstudio',
+  'search index', 'careernexus', 'talentsis', 'stafflink', 'jobally', 'the supreme hr',
+  'supreme hr advisory', 'hkm hr', 'linkedcorp', 'anradus', 'aegis',
+  'persol', 'searchasia', 'peoplebank', 'jobline', 'cultivar', 'star career',
+  'flintex', 'octomate', 'nala employment', 'maestro hr', 'adept manpower', 'peoplesearch'
+];
+const AGENCY_NAME_RE = /recruit|staffing|manpower|headhunt|outsourc|employment agenc|personnel|hr advisory|hr solutions|human capital|human resource|executive search|talent (acquisition|solutions|search|hub|network)|search (pte|associates|partners|consultants)/i;
+const EA_LICENCE_RE = /ea licen[cs]e|ea reg(istration)?\s*(no|number)?|licen[cs]e\s*(no|number)?\s*:?\s*\d{2}c\d{4}|(^|[^a-z0-9])r\d{7}([^0-9]|$)|employment agenc/i;
+
+function classifyEmployer(job) {
+  const name = String(job.postedBy || job.company || '').toLowerCase();
+  if (KNOWN_AGENCIES.some((a) => name.includes(a))) return { type: 'agency', reason: 'known agency' };
+  if (AGENCY_NAME_RE.test(name)) return { type: 'agency', reason: 'agency-pattern name' };
+  if (job.hiringFor && job.postedBy && job.hiringFor.toLowerCase() !== job.postedBy.toLowerCase()) {
+    return { type: 'agency', reason: `posting on behalf of ${job.hiringFor}` };
+  }
+  if (EA_LICENCE_RE.test(job.description || '')) return { type: 'agency', reason: 'EA licence in posting' };
+  return { type: 'direct', reason: '' };
+}
+
 VIEWS.market = () => {
   const m = state.market;
   return `
   <div class="page-head">
     <div>
       <div class="page-title">Market Intelligence</div>
-      <div class="page-desc">Live job listings from MyCareersFuture Singapore. TalentOS reads each posting, highlights the requirements inline, and matches them against your candidate database.</div>
+      <div class="page-desc">Live job listings from MyCareersFuture Singapore — real postings, fetched the moment you search. TalentOS separates direct employers (BD prospects) from recruitment agencies (your competitors), highlights requirements, and matches your database.</div>
     </div>
   </div>
   <div class="search-row">
@@ -1179,6 +1208,11 @@ VIEWS.market = () => {
   <div id="market-results">${marketResults()}</div>`;
 };
 
+window.setMarketFilter = (f) => {
+  state.market.filter = f;
+  render();
+};
+
 function marketResults() {
   const m = state.market;
   if (m.loading) return '<div class="empty"><div class="empty-icon">◎</div>Scanning the Singapore job market…</div>';
@@ -1186,22 +1220,38 @@ function marketResults() {
   if (m.error && !m.results.length) return `<div class="empty"><div class="empty-icon">⚠</div>Could not reach MyCareersFuture (${esc(m.error)}).<br><span class="small">Check your internet connection and try again.</span></div>`;
   if (!m.results.length) return '<div class="empty">No live roles found for that search.</div>';
 
+  const classified = m.results.map((job) => ({ job, cls: classifyEmployer(job) }));
+  const nDirect = classified.filter((x) => x.cls.type === 'direct').length;
+  const nAgency = classified.length - nDirect;
+  const filter = m.filter || 'all';
+  const visible = classified.filter((x) => filter === 'all' || x.cls.type === filter);
+
   return `
-  <div class="small muted" style="margin-bottom:10px">${m.results.length} live listings ${m.live ? 'from MyCareersFuture' : ''}${m.total ? ` (of ${m.total} in the market)` : ''}</div>
+  <div class="filter-chips">
+    <button class="filter-chip ${filter === 'all' ? 'active' : ''}" onclick="setMarketFilter('all')">All (${classified.length})</button>
+    <button class="filter-chip ${filter === 'direct' ? 'active' : ''}" onclick="setMarketFilter('direct')">Direct employers (${nDirect})</button>
+    <button class="filter-chip ${filter === 'agency' ? 'active' : ''}" onclick="setMarketFilter('agency')">Agencies — competitors (${nAgency})</button>
+  </div>
+  <div class="small muted" style="margin-bottom:10px">${visible.length} live listings ${m.live ? 'from MyCareersFuture' : ''}${m.total ? ` (of ${m.total} in the market)` : ''}</div>
   <div class="stack">
-  ${m.results.map((job) => {
+  ${visible.map(({ job, cls }) => {
     const p = m.prereqs[job.id];
+    const isAgency = cls.type === 'agency';
     return `
     <div class="card job-card">
       <div style="display:flex; justify-content:space-between; gap:14px; align-items:flex-start">
         <div style="min-width:0">
           <div class="row-title" style="font-size:15px">${esc(job.title)}</div>
-          <div class="row-sub">${esc(job.company)}</div>
+          <div class="row-sub">${esc(job.company)}
+            <span class="badge ${isAgency ? 'badge-agency' : 'badge-direct'}" style="margin-left:6px">${isAgency ? '⚔ Agency — competitor' : '★ Direct employer'}</span>
+            ${cls.reason ? `<span class="faint small" style="margin-left:4px">(${esc(cls.reason)})</span>` : ''}
+          </div>
         </div>
         <div style="display:flex; gap:8px; flex-shrink:0">
           ${p ? '' : `<button class="btn btn-sm" onclick="extractForJob('${job.id}')">Extract &amp; highlight</button>`}
           <button class="btn btn-sm btn-primary" onclick="matchForMarketJob('${job.id}')">◉ Match candidates</button>
           <button class="btn btn-sm" onclick="importMarketJob('${job.id}')">Import as job order</button>
+          ${isAgency ? '' : `<button class="btn btn-sm" onclick="addProspectFromMarket('${job.id}')" title="This employer is hiring directly — add them to Clients as a BD prospect">+ BD prospect</button>`}
         </div>
       </div>
       <div class="job-meta">
@@ -1311,6 +1361,288 @@ window.importMarketJob = async (id) => {
   logActivity('Imported from market', `Imported "${job.title}" (${job.company}) from MyCareersFuture.`, 'job', newJob.id);
   toast('Imported — assign the right client on the job page');
   location.hash = '#/jobs/' + newJob.id;
+};
+
+window.addProspectFromMarket = (jobId) => {
+  const job = marketJobById(jobId);
+  if (!job) return;
+  const coName = job.hiringFor || job.company;
+  if (state.db.clients.some((c) => normCo(c.name) === normCo(coName))) return toast('Already in your client list');
+  const client = {
+    id: uid('cl'), name: coName,
+    industry: (job.categories && job.categories[0]) || 'General',
+    location: 'Singapore', tier: 'C', status: 'Prospect',
+    notes: `BD prospect spotted via Market Intel ${today()} — hiring directly for "${job.title}" (${money(job.salaryMin)}–${money(job.salaryMax)}).${job.url ? ' Posting: ' + job.url : ''}`,
+    contacts: [],
+  };
+  state.db.clients.push(client);
+  logActivity('BD prospect', `${coName} added as prospect — hiring directly for "${job.title}".`, 'client', client.id);
+  toast(coName + ' added to Clients as a prospect');
+};
+
+/* ============================ Talent Map ================================= */
+/* Company-level market intelligence: who from your database works where,
+   who used to work there (alumni = warm intros), and who you are hunting. */
+const TARGET_STATUSES = ['Identified', 'Approached', 'In conversation', 'CV obtained', 'Do not contact'];
+
+function normCo(name) {
+  return String(name || '').toLowerCase()
+    .replace(/\b(pte\.?|ltd\.?|llp|llc|inc\.?|corp\.?|limited|private|holdings|group)\b/g, '')
+    .replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function buildCompanyMap() {
+  const map = new Map();
+  const entry = (name) => {
+    const key = normCo(name);
+    if (!key) return null;
+    if (!map.has(key)) map.set(key, { key, name, current: [], alumni: [], targets: [], client: null });
+    return map.get(key);
+  };
+  state.db.candidates.forEach((c) => {
+    (c.experience || []).forEach((e, i) => {
+      const en = entry(e.company);
+      if (!en) return;
+      const isCurrent = /present|current/i.test(e.to || '');
+      const rec = { cand: c, role: e.role, from: e.from, to: e.to };
+      if (isCurrent) en.current.push(rec); else en.alumni.push(rec);
+    });
+  });
+  (state.db.targets || []).forEach((t) => {
+    const en = entry(t.company);
+    if (en) en.targets.push(t);
+  });
+  state.db.clients.forEach((cl) => {
+    const en = map.get(normCo(cl.name));
+    if (en) en.client = cl;
+  });
+  return map;
+}
+
+function xrayLinks(company, role) {
+  const g = `https://www.google.com/search?q=${encodeURIComponent(`site:linkedin.com/in "${company}" "${role}" Singapore`)}`;
+  const li = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(company + ' ' + role)}`;
+  const co = `https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(company)}`;
+  return { g, li, co };
+}
+
+VIEWS.talentmap = (arg) => {
+  if (!state.db.targets) state.db.targets = [];
+  if (arg) return companyDetail(decodeURIComponent(arg));
+  const map = buildCompanyMap();
+  const companies = Array.from(map.values())
+    .sort((a, b) => (b.current.length + b.targets.length) - (a.current.length + a.targets.length) || (b.alumni.length - a.alumni.length));
+  const nTargets = (state.db.targets || []).length;
+  const active = (state.db.targets || []).filter((t) => t.status !== 'Do not contact' && t.status !== 'CV obtained').length;
+
+  return `
+  <div class="page-head">
+    <div>
+      <div class="page-title">Talent Map</div>
+      <div class="page-desc">Market intelligence by company: who from your database sits inside each organisation, who used to (warm intros), and who you are hunting. Open a company to run live web searches for the people you still need to find.</div>
+    </div>
+    <button class="btn btn-primary" onclick="showAddTarget('')">+ Add hunt target</button>
+  </div>
+  <div id="add-target-slot"></div>
+  <div class="grid grid-4" style="margin-bottom:16px">
+    <div class="card"><div class="kpi-num kpi-accent">${companies.length}</div><div class="kpi-label">Companies mapped</div></div>
+    <div class="card"><div class="kpi-num">${companies.reduce((n, co) => n + co.current.length, 0)}</div><div class="kpi-label">Candidates placed in map</div></div>
+    <div class="card"><div class="kpi-num">${nTargets}</div><div class="kpi-label">Hunt targets tracked</div></div>
+    <div class="card"><div class="kpi-num">${active}</div><div class="kpi-label">Active pursuits</div></div>
+  </div>
+  <div class="grid grid-3">
+    ${companies.map((co) => `
+      <div class="card tm-company-card" onclick="location.hash='#/talentmap/${encodeURIComponent(co.key)}'">
+        <div class="tm-co-name">${esc(co.name)}</div>
+        <div class="small muted" style="margin-top:2px">
+          ${co.client ? `<span class="badge ${co.client.status === 'Active' ? 'badge-open' : 'badge-stage'}">Client · ${esc(co.client.status)}</span>` : '<span class="faint">Not a client</span>'}
+        </div>
+        <div class="tm-counts">
+          <div class="tm-count"><div class="tm-count-num">${co.current.length}</div><div class="tm-count-label">Inside now</div></div>
+          <div class="tm-count"><div class="tm-count-num">${co.alumni.length}</div><div class="tm-count-label">Alumni</div></div>
+          <div class="tm-count"><div class="tm-count-num accent">${co.targets.length}</div><div class="tm-count-label">Hunting</div></div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+};
+
+function companyDetail(key) {
+  const map = buildCompanyMap();
+  const co = map.get(key);
+  if (!co) return '<div class="empty">Company not found in the map.</div>';
+  const hiring = (state.tmHiring && state.tmHiring.key === key) ? state.tmHiring : null;
+
+  const person = (rec, kind) => `
+    <div class="person-row">
+      <div class="avatar">${esc(rec.cand.name.split(' ').map((w) => w[0]).slice(0, 2).join(''))}</div>
+      <div style="flex:1; min-width:0; cursor:pointer" onclick="location.hash='#/candidates/${rec.cand.id}'">
+        <div class="row-title" style="font-size:13px">${esc(rec.cand.name)}</div>
+        <div class="row-sub">${esc(rec.role)} · ${esc(rec.from)}–${esc(rec.to)}${kind === 'alumni' ? ' · knows the inside' : ''}</div>
+      </div>
+      <span class="chip">${esc(rec.cand.workPass)}</span>
+    </div>`;
+
+  return `
+  <a class="back-link" href="#/talentmap">← Talent Map</a>
+  <div class="page-head">
+    <div>
+      <div class="page-title">${esc(co.name)}</div>
+      <div class="page-desc">
+        ${co.client ? `Client (${esc(co.client.status)})` : 'Not yet a client'} ·
+        ${co.current.length} of your candidates inside · ${co.alumni.length} alumni · ${co.targets.length} hunt targets
+      </div>
+    </div>
+    <div style="display:flex; gap:8px">
+      <button class="btn" onclick="checkLiveHiring('${esc(co.key)}','${esc(co.name)}')">◎ Check live hiring</button>
+      <button class="btn btn-primary" onclick="showAddTarget('${esc(co.name)}')">+ Add hunt target here</button>
+    </div>
+  </div>
+  <div id="add-target-slot"></div>
+  <div class="grid grid-2" style="align-items:start">
+    <div class="stack">
+      <div class="card">
+        <div class="section-title">Your candidates inside now (${co.current.length})</div>
+        ${co.current.map((r) => person(r, 'current')).join('') || '<div class="muted small">Nobody from your database currently works here.</div>'}
+      </div>
+      <div class="card">
+        <div class="section-title">Alumni — warm intro paths (${co.alumni.length})</div>
+        ${co.alumni.map((r) => person(r, 'alumni')).join('') || '<div class="muted small">No alumni on record.</div>'}
+      </div>
+      <div class="card">
+        <div class="section-title">Find people here on the web</div>
+        <div class="small muted">Real searches — they open LinkedIn / Google x-ray results for this company in a new tab.</div>
+        <div class="search-row" style="margin:10px 0 0">
+          <input class="input" id="xray-role" placeholder="Role to hunt, e.g. Staff Nurse, Facilities Engineer…" style="max-width:320px">
+          <button class="btn" onclick="openXray('${esc(co.name)}')">Search</button>
+        </div>
+        <div class="xray-links" id="xray-out"></div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="section-title">Hunt targets at ${esc(co.name)} (${co.targets.length})</div>
+        ${co.targets.map((t) => `
+          <div class="person-row">
+            <div class="avatar hunt">◎</div>
+            <div style="flex:1; min-width:0">
+              <div class="row-title" style="font-size:13px">${esc(t.name)}</div>
+              <div class="row-sub">${esc(t.title)} · via ${esc(t.source || 'unknown')} · added ${esc(t.addedDate)}</div>
+              ${t.notes ? `<div class="why-line">${esc(t.notes)}</div>` : ''}
+              ${t.linkedin ? `<div class="why-line"><a href="${esc(t.linkedin)}" target="_blank" style="color:var(--accent-dark)">LinkedIn profile ↗</a></div>` : ''}
+            </div>
+            <select class="input" style="width:150px; padding:5px 8px; font-size:12px" onchange="setTargetStatus('${t.id}', this.value)">
+              ${TARGET_STATUSES.map((s) => `<option ${s === t.status ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+            <button class="btn btn-sm" onclick="delTarget('${t.id}')" title="Remove target">✕</button>
+          </div>`).join('') || '<div class="muted small">No targets yet — use the web search on the left to find people, then add them here.</div>'}
+      </div>
+      <div class="card">
+        <div class="section-title">Live hiring signal</div>
+        ${hiring
+          ? (hiring.loading
+            ? '<div class="muted small"><span class="spinner"></span> Checking MyCareersFuture…</div>'
+            : (hiring.jobs.length
+              ? `<div class="small muted" style="margin-bottom:8px">${hiring.jobs.length} live posting${hiring.jobs.length > 1 ? 's' : ''} by ${esc(co.name)} right now — they are hiring, which means budgets exist and staff may be stretched.</div>`
+                + hiring.jobs.map((j) => `
+                  <div class="feed-item">
+                    <div style="flex:1">
+                      <div class="row-title" style="font-size:13px">${esc(j.title)}</div>
+                      <div class="row-sub">${money(j.salaryMin)}–${money(j.salaryMax)} · posted ${esc(j.postedDate || '')}</div>
+                    </div>
+                    ${j.url ? `<a class="btn btn-sm" href="${esc(j.url)}" target="_blank">View ↗</a>` : ''}
+                  </div>`).join('')
+              : `<div class="muted small">No live MyCareersFuture postings found under “${esc(co.name)}” right now.</div>`))
+          : '<div class="muted small">Press “Check live hiring” to query MyCareersFuture for this company’s open roles.</div>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+window.openXray = (company) => {
+  const role = ($('#xray-role').value || '').trim() || 'manager';
+  const links = xrayLinks(company, role);
+  $('#xray-out').innerHTML = `
+    <a class="btn btn-sm" href="${esc(links.g)}" target="_blank">Google x-ray: ${esc(role)} at ${esc(company)} ↗</a>
+    <a class="btn btn-sm" href="${esc(links.li)}" target="_blank">LinkedIn people search ↗</a>
+    <a class="btn btn-sm" href="${esc(links.co)}" target="_blank">LinkedIn company lookup ↗</a>`;
+};
+
+window.checkLiveHiring = async (key, name) => {
+  state.tmHiring = { key, loading: true, jobs: [] };
+  render();
+  try {
+    const resp = await fetch('/api/market?q=' + encodeURIComponent(name) + '&limit=40');
+    const data = await resp.json();
+    const coMatch = (a, b) => !!a && !!b && (a === b || a.includes(b) || b.includes(a));
+    const jobs = (data.jobs || []).filter((j) =>
+      coMatch(normCo(j.postedBy || j.company), key) || coMatch(normCo(j.hiringFor || ''), key));
+    state.tmHiring = { key, loading: false, jobs };
+  } catch (e) {
+    state.tmHiring = { key, loading: false, jobs: [] };
+  }
+  render();
+};
+
+window.showAddTarget = (company) => {
+  $('#add-target-slot').innerHTML = `
+  <div class="card" style="margin-bottom:14px">
+    <div class="section-title">New hunt target</div>
+    <div class="small muted" style="margin-bottom:10px">Someone you found on the web (LinkedIn, a conference list, a news article) who you want to headhunt. TalentOS tracks the pursuit; the sourcing stays human.</div>
+    <div class="grid grid-2">
+      <input class="input" id="nt-name" placeholder="Full name">
+      <input class="input" id="nt-title" placeholder="Their current title">
+      <input class="input" id="nt-company" placeholder="Company" value="${esc(company)}">
+      <input class="input" id="nt-linkedin" placeholder="LinkedIn URL (optional)">
+      <input class="input" id="nt-source" placeholder="Where you found them (e.g. LinkedIn x-ray)">
+      <select class="input" id="nt-status">${TARGET_STATUSES.map((s) => `<option>${s}</option>`).join('')}</select>
+    </div>
+    <div style="margin-top:10px"><input class="input" id="nt-notes" placeholder="Notes — why this person, what you know"></div>
+    <div style="margin-top:12px; display:flex; gap:8px">
+      <button class="btn btn-primary" onclick="saveNewTarget()">Save target</button>
+      <button class="btn" onclick="render()">Cancel</button>
+    </div>
+  </div>`;
+  const el = $('#nt-name');
+  if (el) el.focus();
+};
+
+window.saveNewTarget = () => {
+  const name = $('#nt-name').value.trim();
+  const company = $('#nt-company').value.trim();
+  if (!name || !company) return toast('Name and company are required');
+  if (!state.db.targets) state.db.targets = [];
+  const t = {
+    id: uid('tgt'), name,
+    title: $('#nt-title').value.trim(),
+    company,
+    linkedin: $('#nt-linkedin').value.trim(),
+    source: $('#nt-source').value.trim(),
+    status: $('#nt-status').value,
+    notes: $('#nt-notes').value.trim(),
+    addedDate: today(),
+  };
+  state.db.targets.push(t);
+  logActivity('Hunt target', `Now hunting ${name} (${t.title || '?'}) at ${company}.`, 'target', t.id);
+  toast('Target added to the map');
+  location.hash = '#/talentmap/' + encodeURIComponent(normCo(company));
+  render();
+};
+
+window.setTargetStatus = (id, status) => {
+  const t = (state.db.targets || []).find((x) => x.id === id);
+  if (!t) return;
+  t.status = status;
+  logActivity('Target update', `${t.name} (${t.company}) → ${status}.`, 'target', id);
+  toast('Status updated');
+};
+
+window.delTarget = (id) => {
+  const t = (state.db.targets || []).find((x) => x.id === id);
+  if (!t) return;
+  state.db.targets = state.db.targets.filter((x) => x.id !== id);
+  logActivity('Target removed', `${t.name} (${t.company}) removed from the hunt list.`, 'target', id);
+  saveDb();
+  render();
 };
 
 /* ============================ Match results ============================== */
