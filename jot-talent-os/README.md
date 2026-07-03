@@ -4,11 +4,17 @@ In-house recruitment CRM for Jobs of Tomorrow (Singapore). No installation, no d
 
 ## Run it
 
+Double-click **`Start TalentOS.bat`** — it starts the server and opens the app in your browser at http://localhost:4820. Keep the black window open while you work; close it to stop. (Double-clicking again while it is already running is harmless.)
+
+Or from a terminal:
+
 ```
 node server.js
 ```
 
 Then open **http://localhost:4820** in your browser.
+
+Note: `public/index.html` is the interface, but it does not work opened directly as a file — the server behind it provides your database and the live MyCareersFuture connection.
 
 ## What is inside
 

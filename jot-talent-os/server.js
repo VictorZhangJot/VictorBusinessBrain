@@ -198,6 +198,14 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+server.on('error', (e) => {
+  if (e.code === 'EADDRINUSE') {
+    console.log(`TalentOS is already running at http://localhost:${PORT} — using the existing one.`);
+    process.exit(0);
+  }
+  throw e;
+});
+
 server.listen(PORT, () => {
   console.log(`JOT TalentOS running at http://localhost:${PORT}`);
 });
