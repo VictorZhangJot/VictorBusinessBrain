@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOT TalentOS</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">◆</div>
+        <div>
+          <div class="brand-name">TalentOS</div>
+          <div class="brand-sub">Jobs of Tomorrow</div>
+        </div>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="#/dashboard" data-route="dashboard"><span class="nav-ico">▦</span> Dashboard</a>
+        <a href="#/clients" data-route="clients"><span class="nav-ico">◫</span> Clients</a>
+        <a href="#/jobs" data-route="jobs"><span class="nav-ico">▤</span> Job Orders</a>
+        <a href="#/candidates" data-route="candidates"><span class="nav-ico">◉</span> Candidates</a>
+        <a href="#/market" data-route="market"><span class="nav-ico">◎</span> Market Intel</a>
+        <a href="#/review" data-route="review"><span class="nav-ico">⇅</span> CV Review</a>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="hint-card">
+          <div class="hint-title">Keyboard</div>
+          <div class="hint-row"><kbd>↓</kbd><kbd>↑</kbd> next / previous CV</div>
+          <div class="hint-row"><kbd>S</kbd> shortlist &nbsp;<kbd>X</kbd> reject</div>
+        </div>
+      </div>
+    </aside>
+    <main class="main" id="main"></main>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

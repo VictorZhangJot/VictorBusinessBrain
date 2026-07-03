@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "talentos",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["jot-talent-os/server.js"],
+      "port": 4820
+    }
+  ]
+}

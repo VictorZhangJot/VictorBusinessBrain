@@ -1,0 +1,844 @@
+{
+  "meta": {
+    "version": 1,
+    "company": "Jobs of Tomorrow",
+    "createdAt": "2026-07-04"
+  },
+  "clients": [
+    {
+      "id": "cl-001",
+      "name": "Meridian Health Group",
+      "industry": "Healthcare",
+      "location": "Novena, Singapore",
+      "tier": "A",
+      "status": "Active",
+      "notes": "Private hospital group, 3 facilities. Perennial nursing shortages; fast interview turnaround.",
+      "contacts": [
+        {
+          "name": "Serene Lim",
+          "role": "Head of Talent Acquisition",
+          "email": "serene.lim@meridianhealth.example.sg",
+          "phone": "+65 9123 4501"
+        },
+        {
+          "name": "Dr. Colin Teo",
+          "role": "Director of Nursing",
+          "email": "colin.teo@meridianhealth.example.sg",
+          "phone": "+65 9123 4502"
+        }
+      ]
+    },
+    {
+      "id": "cl-002",
+      "name": "Equinox DC Operations Pte Ltd",
+      "industry": "Data Centre",
+      "location": "Jurong West, Singapore",
+      "tier": "A",
+      "status": "Active",
+      "notes": "Operates 2 colocation facilities, expanding to a third in Tuas by Q1 2027. Needs critical facilities engineers ahead of commissioning.",
+      "contacts": [
+        {
+          "name": "Marcus Ng",
+          "role": "Facilities Director",
+          "email": "marcus.ng@equinoxdc.example.sg",
+          "phone": "+65 9234 5601"
+        }
+      ]
+    },
+    {
+      "id": "cl-003",
+      "name": "Veritas AI Labs",
+      "industry": "AI / Technology",
+      "location": "one-north, Singapore",
+      "tier": "B",
+      "status": "Active",
+      "notes": "Series B applied-AI startup, ~80 headcount. Hiring ML engineers and data engineers; picky on production experience.",
+      "contacts": [
+        {
+          "name": "Priya Raman",
+          "role": "VP Engineering",
+          "email": "priya@veritasai.example.sg",
+          "phone": "+65 9345 6701"
+        }
+      ]
+    },
+    {
+      "id": "cl-004",
+      "name": "St. Gabriel Community Hospital",
+      "industry": "Healthcare",
+      "location": "Serangoon, Singapore",
+      "tier": "B",
+      "status": "Prospect",
+      "notes": "Community hospital, 280 beds. First conversation held June 2026; interested in allied health pipeline.",
+      "contacts": [
+        {
+          "name": "Angela Chua",
+          "role": "HR Manager",
+          "email": "angela.chua@stgabriel.example.sg",
+          "phone": "+65 9456 7801"
+        }
+      ]
+    }
+  ],
+  "jobs": [
+    {
+      "id": "job-001",
+      "title": "Senior Staff Nurse (Medical-Surgical Ward)",
+      "clientId": "cl-001",
+      "status": "Open",
+      "priority": "Urgent",
+      "openedDate": "2026-06-15",
+      "salaryMin": 4200,
+      "salaryMax": 5400,
+      "location": "Novena",
+      "employmentType": "Permanent",
+      "fee": "18% of annual salary",
+      "description": "Senior Staff Nurse for a 40-bed medical-surgical ward. Registered Nurse with valid SNB registration required. Minimum 4 years of acute care experience. BCLS certification mandatory, ACLS preferred. Degree or Diploma in Nursing. Must be comfortable with preceptorship of junior nurses and use of Epic EMR. Singapore Citizens and PRs preferred.",
+      "pipeline": {
+        "cand-001": "Interview",
+        "cand-002": "Submitted",
+        "cand-011": "Screening"
+      }
+    },
+    {
+      "id": "job-002",
+      "title": "Critical Facilities Engineer (Data Centre)",
+      "clientId": "cl-002",
+      "status": "Open",
+      "priority": "High",
+      "openedDate": "2026-06-22",
+      "salaryMin": 5500,
+      "salaryMax": 7500,
+      "location": "Jurong West",
+      "employmentType": "Permanent",
+      "fee": "20% of annual salary",
+      "description": "Critical Facilities Engineer to oversee electrical and mechanical infrastructure in a Tier III colocation facility. Minimum 5 years of data centre or critical environment experience. Strong knowledge of UPS systems, generators, chillers, CRAC units and BMS. Degree in Electrical or Mechanical Engineering. CDCP or equivalent data centre certification preferred. 12-hour rotating shifts.",
+      "pipeline": {
+        "cand-005": "Submitted",
+        "cand-006": "Screening"
+      }
+    },
+    {
+      "id": "job-003",
+      "title": "Machine Learning Engineer",
+      "clientId": "cl-003",
+      "status": "Open",
+      "priority": "Normal",
+      "openedDate": "2026-07-01",
+      "salaryMin": 8000,
+      "salaryMax": 12000,
+      "location": "one-north",
+      "employmentType": "Permanent",
+      "fee": "22% of annual salary",
+      "description": "Machine Learning Engineer to productionise NLP models. Minimum 3 years of ML engineering experience. Strong Python, PyTorch or TensorFlow, and experience deploying models with Docker and Kubernetes. Degree in Computer Science or related field, Master's preferred. Experience with LLM fine-tuning and vector databases is a plus. Hybrid work arrangement.",
+      "pipeline": {
+        "cand-008": "Interview",
+        "cand-009": "Sourcing"
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "Nurul Aisyah Binte Rahman",
+      "title": "Senior Staff Nurse",
+      "domain": "Healthcare",
+      "yearsExp": 7,
+      "education": "Bachelor of Science (Nursing), NUS",
+      "skills": [
+        "Medical-Surgical Nursing",
+        "Acute Care",
+        "Patient Assessment",
+        "Epic EMR",
+        "Preceptorship",
+        "Wound Care",
+        "IV Therapy"
+      ],
+      "certs": [
+        "SNB Registered Nurse",
+        "BCLS",
+        "ACLS"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 5200,
+      "availability": "1 month notice",
+      "location": "Sengkang",
+      "email": "nurul.aisyah@example.com",
+      "phone": "+65 8111 2001",
+      "status": "Active",
+      "source": "Internal database",
+      "summary": "Seven years of acute medical-surgical nursing across public and private hospitals. Currently precepting a team of four junior nurses. Looking for a senior role with clearer progression toward Nurse Clinician.",
+      "experience": [
+        {
+          "role": "Senior Staff Nurse",
+          "company": "Tan Tock Seng Hospital",
+          "from": "2022",
+          "to": "Present",
+          "points": [
+            "Lead nurse for a 38-bed med-surg ward on rotating shifts",
+            "Preceptor for 4 junior nurses and 6 student placements per year",
+            "Ward champion for Epic EMR rollout in 2023"
+          ]
+        },
+        {
+          "role": "Staff Nurse",
+          "company": "Mount Elizabeth Novena",
+          "from": "2019",
+          "to": "2022",
+          "points": [
+            "General surgical ward, 28 beds",
+            "Trained in post-operative wound management and IV therapy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-002",
+      "name": "Grace Tan Wei Ling",
+      "title": "Staff Nurse",
+      "domain": "Healthcare",
+      "yearsExp": 4,
+      "education": "Diploma in Nursing, Nanyang Polytechnic",
+      "skills": [
+        "Medical-Surgical Nursing",
+        "Geriatric Care",
+        "Patient Assessment",
+        "Medication Administration",
+        "Wound Care"
+      ],
+      "certs": [
+        "SNB Registered Nurse",
+        "BCLS"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 4300,
+      "availability": "Immediate",
+      "location": "Tampines",
+      "email": "grace.tanwl@example.com",
+      "phone": "+65 8111 2002",
+      "status": "Active",
+      "source": "Internal database",
+      "summary": "Four years in medical and geriatric wards. Recently completed a contract role and available immediately. Keen to move into a private hospital setting.",
+      "experience": [
+        {
+          "role": "Staff Nurse",
+          "company": "Changi General Hospital",
+          "from": "2022",
+          "to": "2026",
+          "points": [
+            "Geriatric medicine ward, high-dependency bays",
+            "Falls-prevention committee member"
+          ]
+        },
+        {
+          "role": "Staff Nurse (Contract)",
+          "company": "St. Andrew's Community Hospital",
+          "from": "2021",
+          "to": "2022",
+          "points": [
+            "Sub-acute care and rehabilitation nursing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-003",
+      "name": "Joseph Mendoza",
+      "title": "Registered Nurse (ICU)",
+      "domain": "Healthcare",
+      "yearsExp": 9,
+      "education": "Bachelor of Science in Nursing, University of Santo Tomas",
+      "skills": [
+        "Intensive Care",
+        "Ventilator Management",
+        "Critical Care",
+        "Hemodynamic Monitoring",
+        "Patient Assessment",
+        "CRRT"
+      ],
+      "certs": [
+        "SNB Registered Nurse",
+        "BCLS",
+        "ACLS"
+      ],
+      "workPass": "Employment Pass",
+      "salaryExpect": 5800,
+      "availability": "2 months notice",
+      "location": "Boon Lay",
+      "email": "joseph.mendoza@example.com",
+      "phone": "+65 8111 2003",
+      "status": "Active",
+      "source": "Referral",
+      "summary": "Nine years of ICU nursing, the last five in Singapore. Deep experience with ventilated patients and CRRT. Seeking a senior ICU or high-dependency role.",
+      "experience": [
+        {
+          "role": "Registered Nurse, Surgical ICU",
+          "company": "National University Hospital",
+          "from": "2021",
+          "to": "Present",
+          "points": [
+            "12-bed surgical ICU, 1:1 and 1:2 nursing",
+            "CRRT-trained; ECMO exposure"
+          ]
+        },
+        {
+          "role": "ICU Nurse",
+          "company": "St. Luke's Medical Center, Manila",
+          "from": "2017",
+          "to": "2021",
+          "points": [
+            "Medical-surgical ICU, charge nurse on night shifts from 2019"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-004",
+      "name": "Cheryl Ong Hui Min",
+      "title": "Radiographer",
+      "domain": "Healthcare",
+      "yearsExp": 5,
+      "education": "BSc (Hons) Diagnostic Radiography, SIT",
+      "skills": [
+        "General Radiography",
+        "CT",
+        "MRI Safety",
+        "PACS",
+        "Patient Care"
+      ],
+      "certs": [
+        "AHPC Full Registration"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 4600,
+      "availability": "1 month notice",
+      "location": "Bishan",
+      "email": "cheryl.ong@example.com",
+      "phone": "+65 8111 2004",
+      "status": "Active",
+      "source": "Internal database",
+      "summary": "Five years across general X-ray and CT. Rotating on-call experience. Interested in a CT-focused role with structured MRI cross-training.",
+      "experience": [
+        {
+          "role": "Radiographer",
+          "company": "Sengkang General Hospital",
+          "from": "2021",
+          "to": "Present",
+          "points": [
+            "General radiography and CT rotations, including trauma on-call",
+            "Departmental PACS super-user"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-005",
+      "name": "Muhammad Hafiz Bin Ismail",
+      "title": "Critical Facilities Engineer",
+      "domain": "Data Centre",
+      "yearsExp": 8,
+      "education": "BEng Electrical Engineering, NTU",
+      "skills": [
+        "UPS Systems",
+        "Generators",
+        "Chillers",
+        "CRAC Units",
+        "BMS",
+        "Electrical Systems",
+        "Preventive Maintenance",
+        "Incident Management"
+      ],
+      "certs": [
+        "CDCP",
+        "LEW (Grade 7)"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 7200,
+      "availability": "1 month notice",
+      "location": "Jurong East",
+      "email": "hafiz.ismail@example.com",
+      "phone": "+65 8111 2005",
+      "status": "Active",
+      "source": "Internal database",
+      "summary": "Eight years in critical facilities across two Tier III colocation sites. Led the electrical commissioning workstream for a 20MW hall in 2024. Comfortable with 12-hour rotating shifts.",
+      "experience": [
+        {
+          "role": "Senior Facilities Engineer",
+          "company": "ST Telemedia GDC",
+          "from": "2021",
+          "to": "Present",
+          "points": [
+            "Shift lead for a Tier III facility, 4-person team",
+            "Owned UPS and generator maintenance programme; zero unplanned downtime in 2025",
+            "Electrical commissioning lead for 20MW expansion"
+          ]
+        },
+        {
+          "role": "Facilities Engineer",
+          "company": "Keppel DC",
+          "from": "2018",
+          "to": "2021",
+          "points": [
+            "M&E operations, BMS monitoring, vendor management"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-006",
+      "name": "Ravi Chandran",
+      "title": "Data Centre Technician",
+      "domain": "Data Centre",
+      "yearsExp": 4,
+      "education": "Diploma in Electrical Engineering, Singapore Polytechnic",
+      "skills": [
+        "CRAC Units",
+        "BMS",
+        "Preventive Maintenance",
+        "Rack & Stack",
+        "Cabling",
+        "Electrical Systems"
+      ],
+      "certs": [
+        "CDCTP"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 4200,
+      "availability": "Immediate",
+      "location": "Woodlands",
+      "email": "ravi.chandran@example.com",
+      "phone": "+65 8111 2006",
+      "status": "Active",
+      "source": "MyCareersFuture application",
+      "summary": "Four years in data centre operations, covering M&E rounds, BMS alarms and remote-hands work. Studying part-time toward a degree. Available immediately.",
+      "experience": [
+        {
+          "role": "Data Centre Technician",
+          "company": "Digital Realty",
+          "from": "2022",
+          "to": "2026",
+          "points": [
+            "Daily M&E readings and BMS alarm response for two data halls",
+            "Remote hands: rack & stack, structured cabling, tape rotation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-007",
+      "name": "Daniel Koh Jun Wei",
+      "title": "Data Centre Operations Manager",
+      "domain": "Data Centre",
+      "yearsExp": 12,
+      "education": "BEng Mechanical Engineering, NUS",
+      "skills": [
+        "Data Centre Operations",
+        "Chillers",
+        "UPS Systems",
+        "Capacity Planning",
+        "Vendor Management",
+        "Team Leadership",
+        "Incident Management",
+        "BMS"
+      ],
+      "certs": [
+        "CDCP",
+        "CDCS",
+        "PMP"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 11000,
+      "availability": "2 months notice",
+      "location": "Punggol",
+      "email": "daniel.koh@example.com",
+      "phone": "+65 8111 2007",
+      "status": "Passive",
+      "source": "LinkedIn",
+      "summary": "Twelve years across data centre M&E and operations leadership. Currently managing a 30-person operations team across two sites. Open to a regional or commissioning-heavy role.",
+      "experience": [
+        {
+          "role": "Operations Manager",
+          "company": "Equinix",
+          "from": "2020",
+          "to": "Present",
+          "points": [
+            "Manages 30 engineers and technicians across 2 IBX sites",
+            "Owns uptime SLAs, incident management and client audits"
+          ]
+        },
+        {
+          "role": "Lead M&E Engineer",
+          "company": "1-Net",
+          "from": "2014",
+          "to": "2020",
+          "points": [
+            "Chiller plant and UPS upgrades while live",
+            "Built the site's preventive maintenance regime"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-008",
+      "name": "Wei Zhang",
+      "title": "Machine Learning Engineer",
+      "domain": "AI / Technology",
+      "yearsExp": 5,
+      "education": "MSc Computer Science, NUS",
+      "skills": [
+        "Python",
+        "PyTorch",
+        "NLP",
+        "LLM Fine-tuning",
+        "Docker",
+        "Kubernetes",
+        "MLOps",
+        "Vector Databases",
+        "AWS"
+      ],
+      "certs": [
+        "AWS Certified Machine Learning – Specialty"
+      ],
+      "workPass": "Permanent Resident",
+      "salaryExpect": 10500,
+      "availability": "1 month notice",
+      "location": "Buona Vista",
+      "email": "wei.zhang@example.com",
+      "phone": "+65 8111 2008",
+      "status": "Active",
+      "source": "Internal database",
+      "summary": "Five years building and shipping NLP systems. Fine-tuned and deployed LLM-based document extraction serving 2M requests per month. Strong production engineering habits.",
+      "experience": [
+        {
+          "role": "Senior ML Engineer",
+          "company": "Grab",
+          "from": "2023",
+          "to": "Present",
+          "points": [
+            "Built LLM-based support-ticket triage, cutting handle time 30%",
+            "Owns model serving on Kubernetes with canary rollouts"
+          ]
+        },
+        {
+          "role": "ML Engineer",
+          "company": "DBS Bank",
+          "from": "2021",
+          "to": "2023",
+          "points": [
+            "Document extraction pipeline with transformer models",
+            "Moved team from notebooks to CI-tested training pipelines"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-009",
+      "name": "Arjun Nair",
+      "title": "Data Engineer",
+      "domain": "AI / Technology",
+      "yearsExp": 6,
+      "education": "BEng Computer Engineering, NTU",
+      "skills": [
+        "Python",
+        "SQL",
+        "Spark",
+        "Airflow",
+        "dbt",
+        "Snowflake",
+        "Kafka",
+        "AWS",
+        "Data Modelling"
+      ],
+      "certs": [
+        "SnowPro Core"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 9000,
+      "availability": "1 month notice",
+      "location": "Clementi",
+      "email": "arjun.nair@example.com",
+      "phone": "+65 8111 2009",
+      "status": "Active",
+      "source": "Referral",
+      "summary": "Six years of data platform work. Built streaming and batch pipelines feeding ML teams. Wants a role closer to the ML platform side.",
+      "experience": [
+        {
+          "role": "Senior Data Engineer",
+          "company": "Shopee",
+          "from": "2022",
+          "to": "Present",
+          "points": [
+            "Kafka + Spark streaming pipelines at ~1B events/day",
+            "Led migration to dbt + Snowflake for analytics workloads"
+          ]
+        },
+        {
+          "role": "Data Engineer",
+          "company": "Singtel",
+          "from": "2020",
+          "to": "2022",
+          "points": [
+            "Airflow orchestration for network analytics"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-010",
+      "name": "Sarah Goh Li Ting",
+      "title": "Data Scientist",
+      "domain": "AI / Technology",
+      "yearsExp": 4,
+      "education": "BSc Statistics, NUS",
+      "skills": [
+        "Python",
+        "SQL",
+        "Machine Learning",
+        "Experimentation",
+        "Tableau",
+        "scikit-learn",
+        "Forecasting"
+      ],
+      "certs": [],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 7500,
+      "availability": "2 months notice",
+      "location": "Bedok",
+      "email": "sarah.goh@example.com",
+      "phone": "+65 8111 2010",
+      "status": "Passive",
+      "source": "LinkedIn",
+      "summary": "Four years in product analytics and applied ML. Strong on experimentation and stakeholder communication; lighter on deployment. Exploring ML-adjacent roles.",
+      "experience": [
+        {
+          "role": "Data Scientist",
+          "company": "Carousell",
+          "from": "2022",
+          "to": "Present",
+          "points": [
+            "Search-ranking experiments and demand forecasting",
+            "Partner data scientist for two product squads"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-011",
+      "name": "Amirah Binte Yusof",
+      "title": "Staff Nurse",
+      "domain": "Healthcare",
+      "yearsExp": 6,
+      "education": "Bachelor of Science (Nursing), SIT",
+      "skills": [
+        "Medical-Surgical Nursing",
+        "Acute Care",
+        "Patient Assessment",
+        "Epic EMR",
+        "IV Therapy",
+        "Oncology Nursing"
+      ],
+      "certs": [
+        "SNB Registered Nurse",
+        "BCLS",
+        "ACLS"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 4800,
+      "availability": "1 month notice",
+      "location": "Yishun",
+      "email": "amirah.yusof@example.com",
+      "phone": "+65 8111 2011",
+      "status": "Active",
+      "source": "Internal database",
+      "summary": "Six years in acute care with a two-year oncology rotation. Chemo-competent. Looking for a senior staff nurse post with oncology exposure.",
+      "experience": [
+        {
+          "role": "Staff Nurse",
+          "company": "Khoo Teck Puat Hospital",
+          "from": "2020",
+          "to": "Present",
+          "points": [
+            "Med-surg and oncology wards; chemotherapy administration competent",
+            "Epic EMR super-user for the ward"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-012",
+      "name": "Kelvin Lee Ming Han",
+      "title": "DevOps Engineer",
+      "domain": "AI / Technology",
+      "yearsExp": 7,
+      "education": "BSc Information Systems, SMU",
+      "skills": [
+        "Kubernetes",
+        "Docker",
+        "Terraform",
+        "AWS",
+        "CI/CD",
+        "Python",
+        "Observability",
+        "Linux"
+      ],
+      "certs": [
+        "CKA",
+        "AWS Solutions Architect – Associate"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 9500,
+      "availability": "1 month notice",
+      "location": "Toa Payoh",
+      "email": "kelvin.lee@example.com",
+      "phone": "+65 8111 2012",
+      "status": "Active",
+      "source": "MyCareersFuture application",
+      "summary": "Seven years in platform and DevOps roles. Runs multi-cluster Kubernetes with GitOps. Has supported ML teams with GPU node pools and model-serving infrastructure.",
+      "experience": [
+        {
+          "role": "Senior DevOps Engineer",
+          "company": "GovTech",
+          "from": "2022",
+          "to": "Present",
+          "points": [
+            "Multi-cluster EKS with ArgoCD GitOps for 12 product teams",
+            "Provisioned GPU node pools for agency ML workloads"
+          ]
+        },
+        {
+          "role": "DevOps Engineer",
+          "company": "NCS",
+          "from": "2019",
+          "to": "2022",
+          "points": [
+            "Terraform modules and CI/CD pipelines for enterprise clients"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-013",
+      "name": "Priscilla Wong Ka Yan",
+      "title": "Physiotherapist",
+      "domain": "Healthcare",
+      "yearsExp": 5,
+      "education": "BSc (Hons) Physiotherapy, SIT",
+      "skills": [
+        "Musculoskeletal Rehab",
+        "Geriatric Rehab",
+        "Patient Assessment",
+        "Exercise Prescription",
+        "Manual Therapy"
+      ],
+      "certs": [
+        "AHPC Full Registration"
+      ],
+      "workPass": "Singapore Citizen",
+      "salaryExpect": 4800,
+      "availability": "1 month notice",
+      "location": "Serangoon",
+      "email": "priscilla.wong@example.com",
+      "phone": "+65 8111 2013",
+      "status": "Active",
+      "source": "Referral",
+      "summary": "Five years split between acute and community rehabilitation. Strong geriatric caseload experience; comfortable with home-visit programmes.",
+      "experience": [
+        {
+          "role": "Physiotherapist",
+          "company": "St. Luke's Hospital",
+          "from": "2021",
+          "to": "Present",
+          "points": [
+            "Sub-acute geriatric rehab, average caseload 14/day",
+            "Runs the falls-prevention group programme"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cand-014",
+      "name": "Tomasz Kowalski",
+      "title": "Electrical Engineer (Critical Environments)",
+      "domain": "Data Centre",
+      "yearsExp": 10,
+      "education": "MSc Electrical Engineering, Warsaw University of Technology",
+      "skills": [
+        "Electrical Systems",
+        "UPS Systems",
+        "Generators",
+        "Switchgear",
+        "Commissioning",
+        "Power Distribution",
+        "BMS"
+      ],
+      "certs": [
+        "CDCE"
+      ],
+      "workPass": "Employment Pass",
+      "salaryExpect": 9800,
+      "availability": "3 months notice",
+      "location": "River Valley",
+      "email": "tomasz.kowalski@example.com",
+      "phone": "+65 8111 2014",
+      "status": "Passive",
+      "source": "LinkedIn",
+      "summary": "Ten years in critical power, the last four in APAC data centre commissioning. Has led Level 4/5 commissioning for hyperscale builds. Open for the right senior IC or lead role.",
+      "experience": [
+        {
+          "role": "Lead Commissioning Engineer",
+          "company": "AECOM",
+          "from": "2022",
+          "to": "Present",
+          "points": [
+            "L4/L5 commissioning lead on two hyperscale campuses in SEA",
+            "Client-side witness testing for UPS, generators, switchgear"
+          ]
+        },
+        {
+          "role": "Electrical Engineer",
+          "company": "Vertiv",
+          "from": "2016",
+          "to": "2022",
+          "points": [
+            "UPS deployment and service across EMEA enterprise sites"
+          ]
+        }
+      ]
+    }
+  ],
+  "activities": [
+    {
+      "id": "act-001",
+      "date": "2026-07-02",
+      "type": "Interview",
+      "text": "Nurul Aisyah — panel interview with Dr. Colin Teo at Meridian Health. Feedback due Monday.",
+      "refType": "job",
+      "refId": "job-001"
+    },
+    {
+      "id": "act-002",
+      "date": "2026-07-01",
+      "type": "Submission",
+      "text": "Submitted Hafiz Ismail to Equinox DC for Critical Facilities Engineer.",
+      "refType": "job",
+      "refId": "job-002"
+    },
+    {
+      "id": "act-003",
+      "date": "2026-06-30",
+      "type": "Client call",
+      "text": "Priya (Veritas AI) confirmed budget up to $12k for ML Engineer; wants production LLM experience.",
+      "refType": "client",
+      "refId": "cl-003"
+    },
+    {
+      "id": "act-004",
+      "date": "2026-06-27",
+      "type": "New candidate",
+      "text": "Added Joseph Mendoza (ICU RN, 9 yrs) via referral from placed candidate.",
+      "refType": "candidate",
+      "refId": "cand-003"
+    }
+  ],
+  "shortlists": []
+}
