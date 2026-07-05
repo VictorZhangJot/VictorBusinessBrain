@@ -433,8 +433,10 @@ const FIELD_WEIGHTS = [
   { key: (c) => [c.domain, c.location, c.workPass, c.availability].join(' '), w: 1, label: 'profile' },
 ];
 
+const SEARCH_STOPWORDS = new Set(['with', 'and', 'the', 'who', 'that', 'have', 'has', 'had', 'for', 'experience', 'experienced', 'background', 'in', 'of', 'a', 'an', 'any', 'all', 'skills', 'skilled', 'knowledge', 'years', 'yrs', 'good', 'strong', 'me', 'my', 'someone', 'anyone', 'people', 'person']);
 function searchCandidates(query) {
-  const tokens = String(query || '').toLowerCase().split(/[\s,]+/).filter((t) => t.length > 1);
+  const tokens = String(query || '').toLowerCase().split(/[\s,]+/)
+    .filter((t) => t.length > 1 && !SEARCH_STOPWORDS.has(t));
   if (!tokens.length) {
     return state.db.candidates.map((c) => ({ cand: c, score: 0, why: [] }));
   }
@@ -663,6 +665,98 @@ document.addEventListener('mouseout', (e) => {
 });
 window.addEventListener('scroll', () => { if (hovercardEl) hovercardEl.classList.remove('show'); }, true);
 
+/* ==================== Command palette (Ctrl+K) ===========================
+   Loxo-style instant search: one box, every record, pure keyboard. */
+const palette = { open: false, query: '', sel: 0, results: [] };
+
+function paletteSearch(q) {
+  const out = [];
+  const ql = q.trim().toLowerCase();
+  const NAV_ACTIONS = [
+    { title: 'Scan the live market', sub: 'Market Intel', ico: '◎', go: '#/market', kind: 'Action' },
+    { title: 'Open pipeline board', sub: 'Drag candidates across stages', ico: '▥', go: '#/board', kind: 'Action' },
+    { title: 'Review CVs with arrow keys', sub: 'CV Review', ico: '⇅', go: '#/review', kind: 'Action' },
+    { title: 'Ask the assistant', sub: 'AI-assisted search', ico: '✦', go: '#/assistant', kind: 'Action' },
+    { title: 'Revenue & reports', sub: 'Placements, forecast, funnel', ico: '∿', go: '#/reports', kind: 'Action' },
+    { title: 'Talent Map', sub: 'Who works where', ico: '⊞', go: '#/talentmap', kind: 'Action' },
+    { title: 'Add a candidate', sub: 'Paste a CV to parse it', ico: '+', go: '#/candidates', kind: 'Action' },
+  ];
+  if (!ql) return NAV_ACTIONS;
+  NAV_ACTIONS.forEach((a) => { if (a.title.toLowerCase().includes(ql) || a.sub.toLowerCase().includes(ql)) out.push(a); });
+  searchCandidates(q).slice(0, 6).forEach((h) => out.push({
+    title: h.cand.name, sub: h.cand.title + ' · ' + h.cand.yearsExp + ' yrs · ' + (h.why[0] || ''),
+    ico: h.cand.name.split(' ').map((w) => w[0]).slice(0, 2).join(''), go: '#/candidates/' + h.cand.id, kind: 'Candidate',
+  }));
+  state.db.clients.filter((c) => (c.name + ' ' + c.industry).toLowerCase().includes(ql)).slice(0, 4).forEach((c) => out.push({
+    title: c.name, sub: c.industry + ' · ' + c.status, ico: '◫', go: '#/clients/' + c.id, kind: 'Client',
+  }));
+  state.db.jobs.filter((j) => j.title.toLowerCase().includes(ql)).slice(0, 4).forEach((j) => out.push({
+    title: j.title, sub: ((clientById(j.clientId) || {}).name || '') + ' · ' + j.status, ico: '▤', go: '#/jobs/' + j.id, kind: 'Job',
+  }));
+  Array.from(buildCompanyMap().values()).filter((co) => co.name.toLowerCase().includes(ql)).slice(0, 3).forEach((co) => out.push({
+    title: co.name, sub: co.current.length + ' inside · ' + co.targets.length + ' hunted', ico: '⊞', go: '#/talentmap/' + encodeURIComponent(co.key), kind: 'Company',
+  }));
+  return out;
+}
+
+function renderPalette() {
+  let el = $('#palette-overlay');
+  if (!palette.open) { if (el) el.remove(); return; }
+  palette.results = paletteSearch(palette.query);
+  if (palette.sel >= palette.results.length) palette.sel = Math.max(0, palette.results.length - 1);
+  const html = `
+  <div class="palette" onclick="event.stopPropagation()">
+    <input id="palette-input" placeholder="Search candidates, clients, jobs, companies… or jump to an action" value="${esc(palette.query)}" autocomplete="off">
+    <div class="palette-results">
+      ${palette.results.map((r, i) => `
+        <div class="pal-item ${i === palette.sel ? 'sel' : ''}" onclick="paletteGo(${i})" onmousemove="paletteHover(${i})">
+          <div class="pal-ico">${esc(r.ico)}</div>
+          <div><div class="pal-title">${esc(r.title)}</div><div class="pal-sub">${esc(r.sub)}</div></div>
+          <div class="pal-kind">${esc(r.kind)}</div>
+        </div>`).join('') || '<div class="pal-empty">Nothing matches — try a skill, a name, or a company.</div>'}
+    </div>
+    <div class="pal-foot"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>`;
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'palette-overlay';
+    el.className = 'palette-overlay';
+    el.onclick = () => closePalette();
+    document.body.appendChild(el);
+  }
+  el.innerHTML = html;
+  const input = $('#palette-input');
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+  input.oninput = (e) => { palette.query = e.target.value; palette.sel = 0; renderPalette(); };
+}
+
+window.paletteGo = (i) => {
+  const r = palette.results[i];
+  if (!r) return;
+  closePalette();
+  location.hash = r.go;
+};
+window.paletteHover = (i) => {
+  if (palette.sel !== i) { palette.sel = i; renderPalette(); }
+};
+function openPalette() { palette.open = true; palette.query = ''; palette.sel = 0; renderPalette(); }
+function closePalette() { palette.open = false; renderPalette(); }
+
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+    e.preventDefault();
+    palette.open ? closePalette() : openPalette();
+    return;
+  }
+  if (!palette.open) return;
+  if (e.key === 'Escape') { e.preventDefault(); closePalette(); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); palette.sel = Math.min(palette.results.length - 1, palette.sel + 1); renderPalette(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); palette.sel = Math.max(0, palette.sel - 1); renderPalette(); }
+  else if (e.key === 'Enter') { e.preventDefault(); window.paletteGo(palette.sel); }
+  e.stopPropagation();
+}, true);
+
 /* ============================== Router =================================== */
 const VIEWS = {};
 function navigate() {
@@ -700,12 +794,14 @@ VIEWS.dashboard = () => {
 
   <div class="grid grid-4">
     <div class="card"><div class="kpi-num kpi-accent">${openJobs.length}</div><div class="kpi-label">Open job orders</div></div>
-    <div class="card"><div class="kpi-num">${db.candidates.length}</div><div class="kpi-label">Candidates in database</div></div>
     <div class="card"><div class="kpi-num">${inPipeline}</div><div class="kpi-label">Candidates in pipelines</div></div>
     <div class="card"><div class="kpi-num">${interviews}</div><div class="kpi-label">At interview stage</div></div>
+    <div class="card"><div class="kpi-num">${money(pipelineForecast().total)}</div><div class="kpi-label">Weighted pipeline forecast</div></div>
   </div>
 
   <div class="grid grid-2" style="margin-top:14px; align-items:start;">
+    <div class="stack">
+    ${tasksPanel()}
     <div class="card">
       <div class="section-title">Open job orders</div>
       ${openJobs.map((j) => {
@@ -718,6 +814,7 @@ VIEWS.dashboard = () => {
           <span class="badge badge-${(j.priority || 'normal').toLowerCase()}">${esc(j.priority)}</span>
         </div>`;
       }).join('') || '<div class="empty">No open roles.</div>'}
+    </div>
     </div>
     <div class="card">
       <div class="section-title">Recent activity</div>
@@ -1014,12 +1111,106 @@ window.saveNewJob = () => {
   location.hash = '#/jobs/' + job.id;
 };
 
+/* ---- Placements & fees (the Vincere-style revenue layer) ---------------- */
+function feePctOf(job) {
+  const m = String(job.fee || '').match(/(\d+(?:\.\d+)?)\s*%/);
+  return m ? parseFloat(m[1]) : 20;
+}
+
+function bookPlacement(jobId, candId) {
+  if (!state.db.placements) state.db.placements = [];
+  if (state.db.placements.some((p) => p.jobId === jobId && p.candId === candId)) return;
+  const j = jobById(jobId);
+  const c = candById(candId);
+  if (!j || !c) return;
+  const monthly = c.salaryExpect || j.salaryMax || j.salaryMin || 0;
+  const feePct = feePctOf(j);
+  const fee = Math.round(monthly * 12 * feePct / 100);
+  state.db.placements.unshift({
+    id: uid('pl'), date: today(), jobId, candId,
+    jobTitle: j.title, candName: c.name, clientId: j.clientId,
+    salary: monthly, feePct, fee,
+    daysToFill: j.openedDate ? Math.max(0, Math.round((new Date(today()) - new Date(j.openedDate)) / 86400000)) : null,
+  });
+  logActivity('Placement 🎉', `${c.name} placed as ${j.title} — fee ${money(fee)} (${feePct}% of annual).`, 'job', jobId);
+  toast(`Placement booked — ${money(fee)} fee 🎉`);
+}
+
 window.setStage = (jobId, candId, stage) => {
   const j = jobById(jobId);
   j.pipeline[candId] = stage;
   const c = candById(candId);
-  logActivity('Stage change', `${c ? c.name : candId} moved to ${stage} for "${j.title}".`, 'job', jobId);
-  toast('Stage updated');
+  if (stage === 'Placed') {
+    bookPlacement(jobId, candId);
+  } else {
+    logActivity('Stage change', `${c ? c.name : candId} moved to ${stage} for "${j.title}".`, 'job', jobId);
+    toast('Stage updated');
+  }
+  if (state.route === 'board') render();
+};
+
+/* ====================== Pipeline board (kanban) ========================== */
+VIEWS.board = () => {
+  const openJobs = state.db.jobs.filter((j) => j.status === 'Open');
+  const filterJob = state.boardJob || 'all';
+  const jobs = filterJob === 'all' ? openJobs : openJobs.filter((j) => j.id === filterJob);
+  const cards = [];
+  jobs.forEach((j) => {
+    Object.entries(j.pipeline || {}).forEach(([cid, stage]) => {
+      const c = candById(cid);
+      if (c) cards.push({ job: j, cand: c, stage });
+    });
+  });
+  return `
+  <div class="page-head">
+    <div>
+      <div class="page-title">Pipeline Board</div>
+      <div class="page-desc">Every candidate in every open pipeline. Drag a card to move stages — dropping on Placed books the placement fee automatically.</div>
+    </div>
+    <select class="input" style="width:280px" onchange="setBoardJob(this.value)">
+      <option value="all">All open jobs (${openJobs.length})</option>
+      ${openJobs.map((j) => `<option value="${j.id}" ${filterJob === j.id ? 'selected' : ''}>${esc(j.title)}</option>`).join('')}
+    </select>
+  </div>
+  <div class="board">
+    ${STAGES.map((stage) => {
+      const here = cards.filter((x) => x.stage === stage);
+      return `
+      <div class="board-col" data-stage="${stage}"
+           ondragover="event.preventDefault(); this.classList.add('dragover')"
+           ondragleave="this.classList.remove('dragover')"
+           ondrop="boardDrop(event, '${stage}')">
+        <div class="board-col-head">
+          <span class="board-col-title">${stage}</span>
+          <span class="board-col-count">${here.length}</span>
+        </div>
+        ${here.map((x) => `
+          <div class="board-card p-${(x.job.priority || 'normal').toLowerCase()}" draggable="true"
+               ondragstart="boardDrag(event, '${x.job.id}', '${x.cand.id}')"
+               ondragend="this.classList.remove('dragging')"
+               ondblclick="location.hash='#/candidates/${x.cand.id}'"
+               title="Drag to move · double-click to open CV">
+            <div class="bc-name">${esc(x.cand.name)}</div>
+            <div class="bc-job">${esc(x.job.title)}<br><span class="faint">${esc((clientById(x.job.clientId) || {}).name || '')}</span></div>
+            <div class="bc-meta"><span>${money(x.cand.salaryExpect)}</span><span>${esc(x.cand.availability || '')}</span></div>
+          </div>`).join('')}
+      </div>`;
+    }).join('')}
+  </div>`;
+};
+
+window.setBoardJob = (v) => { state.boardJob = v; render(); };
+window.boardDrag = (e, jobId, candId) => {
+  e.dataTransfer.setData('text/plain', jobId + '|' + candId);
+  e.target.classList.add('dragging');
+};
+window.boardDrop = (e, stage) => {
+  e.preventDefault();
+  const [jobId, candId] = (e.dataTransfer.getData('text/plain') || '').split('|');
+  if (!jobId || !candId) return;
+  const j = jobById(jobId);
+  if (j && j.pipeline[candId] !== stage) window.setStage(jobId, candId, stage);
+  else render();
 };
 
 window.matchForJob = (jobId) => {
@@ -1112,10 +1303,68 @@ function candidateDetail(id) {
   <div class="cv-sheet">${cvBody(c)}</div>`;
 }
 
+/* CV paste-parser: paste raw CV text, get a structured candidate. */
+function parseCVText(text) {
+  const lines = text.split(/\r?\n/).map((l) => l.trim());
+  const out = {};
+  const emailM = text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+  if (emailM) out.email = emailM[0];
+  const phoneM = text.match(/(?:\+65[\s-]?)?[3689]\d{3}[\s-]?\d{4}/);
+  if (phoneM) out.phone = phoneM[0];
+  // name: first short line of letters, not a header word
+  out.name = (lines.find((l) => l && l.length < 45 && /^[A-Za-z' .,-]+$/.test(l) &&
+    l.split(/\s+/).length >= 2 && l.split(/\s+/).length <= 5 &&
+    !/resume|curriculum|vitae|profile|summary|experience|education|contact/i.test(l)) || '').replace(/,.*/, '');
+  // title: first line mentioning a recognisable role word
+  const ROLE_RE = /nurse|engineer|manager|technician|radiographer|physiotherapist|scientist|developer|analyst|consultant|clinician|therapist|architect|specialist|executive|lead/i;
+  const titleLine = lines.slice(0, 15).find((l) => l && l.length < 70 && ROLE_RE.test(l) && l !== out.name);
+  if (titleLine) out.title = titleLine.replace(/^(current\s*(role|title)\s*:?\s*)/i, '');
+  // years of experience
+  const yM = text.match(/(\d{1,2})\+?\s*years?(?:['’]?s)?\s*(?:of\s*)?(?:relevant |working |clinical |professional )?experience/i);
+  if (yM) out.yearsExp = parseInt(yM[1], 10);
+  else {
+    const years = (text.match(/\b(19[89]\d|20[012]\d)\b/g) || []).map(Number);
+    if (years.length) out.yearsExp = Math.min(40, new Date().getFullYear() - Math.min(...years));
+  }
+  // education: line containing the highest level mentioned
+  let bestEdu = null;
+  EDU_LEVELS.forEach((e) => { if (textHasSyn(' ' + text.toLowerCase() + ' ', e.syn)) bestEdu = e; });
+  if (bestEdu) {
+    const eduLine = lines.find((l) => textHasSyn(' ' + l.toLowerCase() + ' ', bestEdu.syn));
+    out.education = eduLine && eduLine.length < 90 ? eduLine : bestEdu.name;
+  }
+  // skills & certs via the taxonomy
+  const p = extractPrereqs(text);
+  out.skills = p.skills.map((s) => s.name);
+  out.certs = p.certs.map((c) => c.name);
+  // summary: first meaty paragraph
+  const para = text.split(/\n\s*\n/).map((s) => s.replace(/\s+/g, ' ').trim()).find((s) => s.length > 100 && !/@/.test(s.slice(0, 60)));
+  if (para) out.summary = para.slice(0, 400);
+  return out;
+}
+
+window.parseCVIntoForm = () => {
+  const text = $('#ncd-cv').value;
+  if (!text.trim()) return toast('Paste the CV text first');
+  const p = parseCVText(text);
+  if (p.name) $('#ncd-name').value = p.name;
+  if (p.title) $('#ncd-title').value = p.title;
+  if (p.yearsExp) $('#ncd-years').value = p.yearsExp;
+  if (p.education) $('#ncd-edu').value = p.education;
+  if (p.email || p.phone) $('#ncd-contact').value = [p.email, p.phone].filter(Boolean).join(' · ');
+  if (p.skills || p.certs) $('#ncd-skills').value = [].concat(p.certs || [], p.skills || []).join(', ');
+  if (p.summary) $('#ncd-summary').value = p.summary;
+  toast(`Parsed — found ${(p.skills || []).length + (p.certs || []).length} skills. Check the fields, then save.`);
+};
+
 window.showAddCandidate = () => {
   $('#add-cand-slot').innerHTML = `
   <div class="card" style="margin-bottom:14px">
     <div class="section-title">New candidate</div>
+    <div style="margin-bottom:12px">
+      <textarea class="input" id="ncd-cv" rows="4" placeholder="⚡ Fast path: paste the raw CV text here and press Parse — name, title, contact, years, education, skills and summary fill themselves."></textarea>
+      <button class="btn" style="margin-top:8px" onclick="parseCVIntoForm()">⚡ Parse CV</button>
+    </div>
     <div class="grid grid-2">
       <input class="input" id="ncd-name" placeholder="Full name">
       <input class="input" id="ncd-title" placeholder="Current title (e.g. Staff Nurse)">
@@ -1124,6 +1373,7 @@ window.showAddCandidate = () => {
       <input class="input" id="ncd-pass" placeholder="Work pass (Citizen / PR / EP)">
       <input class="input" id="ncd-salary" placeholder="Expected salary (SGD)" type="number">
     </div>
+    <div style="margin-top:10px"><input class="input" id="ncd-contact" placeholder="Email · phone"></div>
     <div style="margin-top:10px"><input class="input" id="ncd-skills" placeholder="Skills, comma-separated (e.g. ICU, Ventilator Management, BCLS)"></div>
     <div style="margin-top:10px"><textarea class="input" id="ncd-summary" rows="3" placeholder="Profile summary"></textarea></div>
     <div style="margin-top:12px; display:flex; gap:8px">
@@ -1136,6 +1386,12 @@ window.showAddCandidate = () => {
 window.saveNewCandidate = () => {
   const name = $('#ncd-name').value.trim();
   if (!name) return toast('Name is required');
+  // duplicate detection — the silent database-killer in every agency CRM
+  const contact = ($('#ncd-contact') ? $('#ncd-contact').value : '').toLowerCase();
+  const dup = state.db.candidates.find((c) =>
+    c.name.toLowerCase() === name.toLowerCase() ||
+    (c.email && contact.includes(c.email.toLowerCase())));
+  if (dup) return toast(`Possible duplicate of ${dup.name} — open their profile instead of re-adding`);
   const allSkills = $('#ncd-skills').value.split(',').map((s) => s.trim()).filter(Boolean);
   const certNames = TAXONOMY.filter((t) => t.cert).map((t) => t.name.toLowerCase());
   const cand = {
@@ -1148,7 +1404,9 @@ window.saveNewCandidate = () => {
     certs: allSkills.filter((s) => certNames.includes(s.toLowerCase())),
     workPass: $('#ncd-pass').value.trim() || 'Unknown',
     salaryExpect: parseInt($('#ncd-salary').value, 10) || null,
-    availability: 'To confirm', location: '', email: '', phone: '',
+    availability: 'To confirm', location: '',
+    email: (contact.match(/[\w.+-]+@[\w-]+\.[\w.-]+/) || [''])[0],
+    phone: (contact.match(/(?:\+65[\s-]?)?[3689]\d{3}[\s-]?\d{4}/) || [''])[0],
     status: 'Active', source: 'Manual entry',
     summary: $('#ncd-summary').value.trim(),
     experience: [],
@@ -1700,6 +1958,153 @@ window.delTarget = (id) => {
   render();
 };
 
+/* ============================ Reports ==================================== */
+const STAGE_WEIGHTS = { Sourcing: 0.05, Screening: 0.1, Submitted: 0.25, Interview: 0.45, Offer: 0.75 };
+
+function pipelineForecast() {
+  let total = 0;
+  const rows = [];
+  state.db.jobs.filter((j) => j.status === 'Open').forEach((j) => {
+    Object.entries(j.pipeline || {}).forEach(([cid, stage]) => {
+      const w = STAGE_WEIGHTS[stage];
+      if (!w) return;
+      const c = candById(cid);
+      if (!c) return;
+      const fee = Math.round((c.salaryExpect || j.salaryMax || 0) * 12 * feePctOf(j) / 100);
+      total += Math.round(fee * w);
+      rows.push({ job: j, cand: c, stage, fee, weighted: Math.round(fee * w) });
+    });
+  });
+  return { total, rows: rows.sort((a, b) => b.weighted - a.weighted) };
+}
+
+VIEWS.reports = () => {
+  const placements = state.db.placements || [];
+  const booked = placements.reduce((n, p) => n + p.fee, 0);
+  const fc = pipelineForecast();
+  const fills = placements.filter((p) => p.daysToFill != null);
+  const avgFill = fills.length ? Math.round(fills.reduce((n, p) => n + p.daysToFill, 0) / fills.length) : null;
+
+  const funnel = {};
+  STAGES.forEach((s) => (funnel[s] = 0));
+  state.db.jobs.filter((j) => j.status === 'Open').forEach((j) =>
+    Object.values(j.pipeline || {}).forEach((s) => { if (funnel[s] != null) funnel[s]++; }));
+  const funnelMax = Math.max(1, ...Object.values(funnel));
+
+  const sources = {};
+  state.db.candidates.forEach((c) => {
+    const s = c.source || 'Unknown';
+    sources[s] = sources[s] || { total: 0, inPipeline: 0, placed: 0 };
+    sources[s].total++;
+    if (state.db.jobs.some((j) => (j.pipeline || {})[c.id])) sources[s].inPipeline++;
+    if (placements.some((p) => p.candId === c.id)) sources[s].placed++;
+  });
+
+  const byClient = {};
+  placements.forEach((p) => {
+    const name = (clientById(p.clientId) || {}).name || 'Unknown';
+    byClient[name] = (byClient[name] || 0) + p.fee;
+  });
+
+  return `
+  <div class="page-head">
+    <div>
+      <div class="page-title">Reports & Revenue</div>
+      <div class="page-desc">Booked fees, weighted pipeline forecast, funnel conversion and source effectiveness — the numbers a world-class desk runs on.</div>
+    </div>
+  </div>
+  <div class="grid grid-4">
+    <div class="card"><div class="rev-num kpi-accent">${money(booked)}</div><div class="kpi-label">Booked fees (${placements.length} placement${placements.length === 1 ? '' : 's'})</div></div>
+    <div class="card"><div class="rev-num">${money(fc.total)}</div><div class="kpi-label">Weighted pipeline forecast</div></div>
+    <div class="card"><div class="rev-num">${avgFill != null ? avgFill + ' days' : '—'}</div><div class="kpi-label">Average time to fill</div></div>
+    <div class="card"><div class="rev-num">${state.db.jobs.filter((j) => j.status === 'Open').length}</div><div class="kpi-label">Open job orders</div></div>
+  </div>
+  <div class="grid grid-2" style="margin-top:14px; align-items:start">
+    <div class="stack">
+      <div class="card">
+        <div class="section-title">Pipeline funnel (open jobs)</div>
+        ${STAGES.filter((s) => s !== 'Rejected').map((s) => `
+          <div class="funnel-row">
+            <div class="funnel-label">${s}</div>
+            <div class="funnel-track"><div class="funnel-fill" style="width:${Math.round((funnel[s] / funnelMax) * 100)}%">${funnel[s]}</div></div>
+          </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="section-title">Forecast detail — where the money sits</div>
+        ${fc.rows.slice(0, 8).map((r) => `
+          <div class="feed-item">
+            <div style="flex:1">
+              <div class="row-title" style="font-size:13px">${esc(r.cand.name)} → ${esc(r.job.title)}</div>
+              <div class="row-sub">${esc(r.stage)} · full fee ${money(r.fee)} × ${Math.round((STAGE_WEIGHTS[r.stage] || 0) * 100)}%</div>
+            </div>
+            <div class="row-title">${money(r.weighted)}</div>
+          </div>`).join('') || '<div class="muted small">Nothing in pipeline yet.</div>'}
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="section-title">Placements</div>
+        ${placements.map((p) => `
+          <div class="feed-item">
+            <div style="flex:1">
+              <div class="row-title" style="font-size:13px">${esc(p.candName)} — ${esc(p.jobTitle)}</div>
+              <div class="row-sub">${esc(p.date)} · ${esc((clientById(p.clientId) || {}).name || '')} · ${p.daysToFill != null ? p.daysToFill + ' days to fill' : ''}</div>
+            </div>
+            <div class="row-title" style="color:var(--green)">${money(p.fee)}</div>
+          </div>`).join('') || '<div class="muted small">No placements booked yet — drag a candidate to Placed on the board.</div>'}
+      </div>
+      <div class="card">
+        <div class="section-title">Source effectiveness</div>
+        <table class="table">
+          <thead><tr><th>Source</th><th>Candidates</th><th>In pipeline</th><th>Placed</th></tr></thead>
+          <tbody>
+          ${Object.entries(sources).sort((a, b) => b[1].total - a[1].total).map(([s, v]) => `
+            <tr><td>${esc(s)}</td><td>${v.total}</td><td>${v.inPipeline}</td><td>${v.placed}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${Object.keys(byClient).length ? `
+      <div class="card">
+        <div class="section-title">Revenue by client</div>
+        ${Object.entries(byClient).sort((a, b) => b[1] - a[1]).map(([n, f]) => `
+          <div class="feed-item"><div style="flex:1">${esc(n)}</div><div class="row-title">${money(f)}</div></div>`).join('')}
+      </div>` : ''}
+    </div>
+  </div>`;
+};
+
+/* ============================ Tasks ====================================== */
+function addTask(text, due, refType, refId) {
+  if (!state.db.tasks) state.db.tasks = [];
+  const t = { id: uid('task'), text, due: due || today(), refType: refType || null, refId: refId || null, done: false, createdDate: today() };
+  state.db.tasks.unshift(t);
+  saveDb();
+  return t;
+}
+window.toggleTask = (id) => {
+  const t = (state.db.tasks || []).find((x) => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  saveDb();
+  render();
+};
+function tasksPanel() {
+  const tasks = (state.db.tasks || []).filter((t) => !t.done).sort((a, b) => (a.due || '').localeCompare(b.due || ''));
+  const overdue = (d) => d && d < today();
+  return `
+  <div class="card">
+    <div class="section-title">Follow-ups due</div>
+    ${tasks.slice(0, 8).map((t) => `
+      <div class="task-row">
+        <input type="checkbox" onchange="toggleTask('${t.id}')">
+        <div style="flex:1">
+          <div>${esc(t.text)}</div>
+          <div class="task-due ${overdue(t.due) ? 'overdue' : ''}">${overdue(t.due) ? '⚠ overdue — ' : 'due '}${esc(t.due)}</div>
+        </div>
+      </div>`).join('') || '<div class="muted small">Nothing pending. Ask the assistant to “remind me to…”.</div>'}
+  </div>`;
+}
+
 /* ============================ Match results ============================== */
 VIEWS.matches = () => {
   const mc = state.matchContext;
@@ -1966,6 +2371,260 @@ document.addEventListener('keydown', (e) => {
     window.exitReview();
   }
 });
+
+/* ========================= AI Assistant chat =============================
+   A recruiter copilot. The built-in intent engine runs real actions against
+   your data (search, match, market scans, talent map, tasks, revenue).
+   Free-form questions route to Claude when ANTHROPIC_API_KEY is set. */
+state.chat = [];
+let chatBusy = false;
+
+const CHAT_SUGGESTIONS = [
+  'What should I do today?',
+  'Find ICU nurses available now',
+  'Who fits the Machine Learning Engineer job?',
+  'Search the market for data centre engineer',
+  'Who works at Equinix?',
+  'How is revenue looking?',
+  'Remind me to call Serene tomorrow',
+];
+
+function chatLink(href, label) { return `<a href="${esc(href)}">${esc(label)}</a>`; }
+function candLine(c, extra) {
+  return `<li>${chatLink('#/candidates/' + c.id, c.name)} — ${esc(c.title)}, ${c.yearsExp} yrs, ${esc(c.availability || '')}${extra ? ' · ' + extra : ''}</li>`;
+}
+
+function fuzzyFindJob(text) {
+  const tl = text.toLowerCase();
+  let best = null, bestScore = 0;
+  state.db.jobs.forEach((j) => {
+    const toks = titleTokens(j.title);
+    const hits = toks.filter((w) => tl.includes(w)).length;
+    if (hits > bestScore) { bestScore = hits; best = j; }
+  });
+  return bestScore ? best : null;
+}
+
+function fuzzyFindCompany(text) {
+  const tl = normCo(text);
+  const map = buildCompanyMap();
+  for (const co of map.values()) {
+    if (tl.includes(co.key) || co.key.includes(tl)) return co;
+  }
+  let best = null, bestLen = 0;
+  for (const co of map.values()) {
+    const words = co.key.split(' ');
+    if (words.some((w) => w.length > 3 && tl.includes(w)) && co.key.length > bestLen) { best = co; bestLen = co.key.length; }
+  }
+  return best;
+}
+
+async function assistantRespond(raw) {
+  const msg = raw.trim();
+  const m = msg.toLowerCase();
+
+  // -- daily digest ---------------------------------------------------------
+  if (/what should i do|today|priorit|morning|brief me|my day/.test(m)) {
+    const tasks = (state.db.tasks || []).filter((t) => !t.done);
+    const overdue = tasks.filter((t) => t.due && t.due < today());
+    const dueToday = tasks.filter((t) => t.due === today());
+    const interviews = [];
+    const offers = [];
+    state.db.jobs.filter((j) => j.status === 'Open').forEach((j) => {
+      Object.entries(j.pipeline || {}).forEach(([cid, stage]) => {
+        const c = candById(cid);
+        if (!c) return;
+        if (stage === 'Interview') interviews.push({ c, j });
+        if (stage === 'Offer') offers.push({ c, j });
+      });
+    });
+    const urgent = state.db.jobs.filter((j) => j.status === 'Open' && j.priority === 'Urgent');
+    let out = '<b>Your desk this morning:</b><ul>';
+    overdue.forEach((t) => out += `<li>⚠ <b>Overdue:</b> ${esc(t.text)} (was due ${esc(t.due)})</li>`);
+    dueToday.forEach((t) => out += `<li>📌 Due today: ${esc(t.text)}</li>`);
+    offers.forEach((x) => out += `<li>💰 <b>Offer out:</b> ${chatLink('#/candidates/' + x.c.id, x.c.name)} for ${chatLink('#/jobs/' + x.j.id, x.j.title)} — chase it, this is closest to a fee</li>`);
+    interviews.forEach((x) => out += `<li>🗓 Interview stage: ${chatLink('#/candidates/' + x.c.id, x.c.name)} for ${chatLink('#/jobs/' + x.j.id, x.j.title)} — confirm feedback</li>`);
+    urgent.forEach((j) => out += `<li>🔥 Urgent role: ${chatLink('#/jobs/' + j.id, j.title)} — ${Object.keys(j.pipeline || {}).length} in pipeline${Object.keys(j.pipeline || {}).length < 3 ? ', thin — source more' : ''}</li>`);
+    out += '</ul>';
+    const fc = pipelineForecast();
+    out += `Weighted pipeline stands at <b>${money(fc.total)}</b>. ${chatLink('#/reports', 'Full numbers →')}`;
+    return out;
+  }
+
+  // -- reminders ------------------------------------------------------------
+  const remind = msg.match(/remind me (?:to |about )?(.+?)(?:\s+(today|tomorrow|next week|on \d{4}-\d{2}-\d{2}))?$/i);
+  if (/remind me|add (a )?task/.test(m) && remind) {
+    let due = today();
+    const when = (remind[2] || '').toLowerCase();
+    const d = new Date();
+    if (when === 'tomorrow') { d.setDate(d.getDate() + 1); due = d.toISOString().slice(0, 10); }
+    else if (when === 'next week') { d.setDate(d.getDate() + 7); due = d.toISOString().slice(0, 10); }
+    else if (when.startsWith('on ')) due = when.slice(3);
+    const t = addTask(remind[1].trim(), due);
+    return `Noted. I will keep <b>“${esc(t.text)}”</b> on your follow-up list, due <b>${esc(t.due)}</b>. It shows on the Dashboard until you tick it off.`;
+  }
+
+  // -- who fits a job -------------------------------------------------------
+  if (/who (fits|matches|suits)|best (candidates?|people) for|shortlist for/.test(m)) {
+    const job = fuzzyFindJob(m);
+    if (job) {
+      const prereqs = extractPrereqs(job.description);
+      const results = matchCandidates(prereqs, { title: job.title, salaryMax: job.salaryMax }).slice(0, 3);
+      let out = `Top matches for <b>${esc(job.title)}</b> (${esc((clientById(job.clientId) || {}).name || '')}):<ul>`;
+      results.forEach((r) => out += candLine(r.cand, `<b>${r.score}%</b> match, ${r.matched.length} requirements hit`));
+      out += '</ul>';
+      out += `<span class="chat-chip" onclick="assistOpenMatch('${job.id}')">Open full match view with evidence →</span>`;
+      return out;
+    }
+    return 'I could not find that job order. Say it closer to the title — for example “who fits the Machine Learning Engineer job?”';
+  }
+
+  // -- market scan ----------------------------------------------------------
+  const marketQ = msg.match(/(?:market|mycareersfuture|live (?:jobs?|roles?|listings?))(?:\s*(?:for|:))?\s+(.+)/i);
+  if (marketQ && marketQ[1]) {
+    const q = marketQ[1].trim();
+    try {
+      const resp = await fetch('/api/market?q=' + encodeURIComponent(q) + '&limit=20');
+      const data = await resp.json();
+      const jobs = data.jobs || [];
+      state.market.query = q; state.market.results = jobs; state.market.live = data.live;
+      state.market.total = data.total; state.market.error = null; state.market.prereqs = {}; state.market.filter = 'all';
+      const agencies = jobs.filter((j) => classifyEmployer(j).type === 'agency').length;
+      let out = `Live market for <b>“${esc(q)}”</b>: <b>${data.total || jobs.length}</b> postings right now — showing ${jobs.length}: <b>${jobs.length - agencies} direct employers</b> (BD prospects) and <b>${agencies} agency postings</b> (competitors).<ul>`;
+      jobs.slice(0, 3).forEach((j) => out += `<li>${esc(j.title)} — ${esc(j.company)}, ${money(j.salaryMin)}–${money(j.salaryMax)}</li>`);
+      out += `</ul>${chatLink('#/market', 'See all with prerequisites highlighted →')}`;
+      return out;
+    } catch (e) {
+      return 'I could not reach MyCareersFuture just now — check the connection and try again.';
+    }
+  }
+
+  // -- talent map -----------------------------------------------------------
+  const whoAt = msg.match(/who (?:works?|is) (?:at|in|inside)\s+(.+)|talent map (?:for )?(.+)/i);
+  if (whoAt) {
+    const coName = (whoAt[1] || whoAt[2] || '').trim().replace(/[?.]$/, '');
+    const co = fuzzyFindCompany(coName);
+    if (co) {
+      let out = `<b>${esc(co.name)}</b> — here is your intel:<ul>`;
+      co.current.forEach((r) => out += candLine(r.cand, 'inside now as ' + esc(r.role)));
+      co.alumni.forEach((r) => out += `<li>${chatLink('#/candidates/' + r.cand.id, r.cand.name)} — alumni (${esc(r.role)}, ${esc(r.from)}–${esc(r.to)}), warm intro path</li>`);
+      co.targets.forEach((t) => out += `<li>◎ Hunting: ${esc(t.name)} — ${esc(t.title)} (${esc(t.status)})</li>`);
+      if (!co.current.length && !co.alumni.length && !co.targets.length) out += '<li>No intel yet.</li>';
+      out += `</ul>${chatLink('#/talentmap/' + encodeURIComponent(co.key), 'Open the org chart →')}`;
+      return out;
+    }
+    return `I have no intel on “${esc(coName)}” yet. Add a hunt target there from the ${chatLink('#/talentmap', 'Talent Map')} and it will appear.`;
+  }
+
+  // -- revenue --------------------------------------------------------------
+  if (/revenue|placements?|forecast|fees|money|billing/.test(m)) {
+    const placements = state.db.placements || [];
+    const booked = placements.reduce((n, p) => n + p.fee, 0);
+    const fc = pipelineForecast();
+    let out = `<b>Booked:</b> ${money(booked)} across ${placements.length} placement${placements.length === 1 ? '' : 's'}. <b>Weighted pipeline forecast:</b> ${money(fc.total)}.`;
+    if (fc.rows.length) {
+      out += ' Closest money:<ul>';
+      fc.rows.slice(0, 3).forEach((r) => out += `<li>${esc(r.cand.name)} → ${esc(r.job.title)} (${esc(r.stage)}) — ${money(r.weighted)} weighted</li>`);
+      out += '</ul>';
+    }
+    return out + chatLink('#/reports', 'Full report →');
+  }
+
+  // -- candidate search -----------------------------------------------------
+  if (/^(find|search|show|list|get|any)\b|nurses?|engineers?|available|candidates? (with|who)/.test(m)) {
+    const q = msg.replace(/^(find|search for|search|show me|show|list|get|any)\s+/i, '').replace(/\b(candidates?|people|profiles?)\b/gi, ' ').replace(/available now|available/gi, ' ').trim();
+    const hits = searchCandidates(q);
+    const wantAvailable = /available now|immediate/i.test(msg);
+    const filtered = wantAvailable ? hits.filter((h) => /immediate/i.test(h.cand.availability || '')) : hits;
+    const list = (filtered.length ? filtered : hits).slice(0, 5);
+    if (!list.length) return `Nobody in the database matches “${esc(q)}” — even with fuzzy matching. Try the ${chatLink('#/market', 'live market')} or add a hunt target in the ${chatLink('#/talentmap', 'Talent Map')}.`;
+    let out = `Found <b>${filtered.length || hits.length}</b> for “${esc(q)}”${wantAvailable && filtered.length ? ' (available immediately)' : ''}:<ul>`;
+    list.forEach((h) => out += candLine(h.cand, h.why[0] ? esc(h.why[0]) : ''));
+    out += `</ul><span class="chat-chip" onclick="assistOpenSearch('${esc(q).replace(/'/g, '')}')">Open in Candidates →</span> <span class="chat-chip" onclick="assistReview('${esc(q).replace(/'/g, '')}')">⇅ Review these CVs →</span>`;
+    return out;
+  }
+
+  // -- free-form: try the Claude-powered brain ------------------------------
+  try {
+    const context = {
+      openJobs: state.db.jobs.filter((j) => j.status === 'Open').map((j) => ({ title: j.title, client: (clientById(j.clientId) || {}).name, salary: [j.salaryMin, j.salaryMax], priority: j.priority, pipeline: Object.entries(j.pipeline || {}).map(([cid, s]) => ((candById(cid) || {}).name || cid) + ':' + s) })),
+      candidates: state.db.candidates.map((c) => ({ name: c.name, title: c.title, yrs: c.yearsExp, skills: (c.skills || []).slice(0, 6), expects: c.salaryExpect, avail: c.availability, pass: c.workPass })),
+      clients: state.db.clients.map((c) => ({ name: c.name, industry: c.industry, status: c.status })),
+      placements: (state.db.placements || []).map((p) => ({ who: p.candName, role: p.jobTitle, fee: p.fee, date: p.date })),
+      tasksOpen: (state.db.tasks || []).filter((t) => !t.done).map((t) => t.text + ' due ' + t.due),
+    };
+    const resp = await fetch('/api/assistant', { method: 'POST', body: JSON.stringify({ message: msg, context }) });
+    const data = await resp.json();
+    if (data.ok) return esc(data.text).replace(/\n/g, '<br>');
+  } catch (e) { /* fall through to the capability card */ }
+
+  return `I did not catch a command in that. I can do these out of the box:<ul>
+    <li><b>“Find …”</b> — search candidates (synonyms + typo-tolerant)</li>
+    <li><b>“Who fits the … job?”</b> — run matching with scores</li>
+    <li><b>“Search the market for …”</b> — live MyCareersFuture scan, agencies split out</li>
+    <li><b>“Who works at …?”</b> — talent map intel</li>
+    <li><b>“What should I do today?”</b> — desk digest</li>
+    <li><b>“Remind me to … tomorrow”</b> — follow-up tasks</li>
+    <li><b>“How is revenue?”</b> — booked fees + forecast</li></ul>
+    <span class="small faint">For open-ended questions, start the server with an ANTHROPIC_API_KEY environment variable and I answer with Claude.</span>`;
+}
+
+window.assistOpenSearch = (q) => { state.candidateQuery = q; location.hash = '#/candidates'; render(); };
+window.assistReview = (q) => { state.candidateQuery = q; window.reviewCandidateList(); };
+window.assistOpenMatch = (jobId) => { window.matchForJob(jobId); };
+
+VIEWS.assistant = () => {
+  if (!state.chat.length) {
+    state.chat.push({ role: 'ai', html: `Good morning, Victor. I am your TalentOS copilot — I search the database, run matches, scan the live market, check the talent map and track your follow-ups, all from this chat. Try a suggestion below or just tell me what you need.` });
+  }
+  return `
+  <div class="page-head">
+    <div>
+      <div class="page-title">Assistant</div>
+      <div class="page-desc">Your recruiting copilot. It executes real searches and actions on your data — every answer is grounded in the database or the live market, never invented.</div>
+    </div>
+  </div>
+  <div class="chat-wrap">
+    <div class="chat-scroll" id="chat-scroll">
+      ${state.chat.map((msg) => `
+        <div class="chat-msg ${msg.role === 'me' ? 'me' : 'ai'}">
+          <div class="avatar ${msg.role === 'ai' ? 'ai-avatar' : ''}">${msg.role === 'ai' ? '✦' : 'VZ'}</div>
+          <div class="chat-bubble">${msg.role === 'me' ? esc(msg.text) : msg.html}</div>
+        </div>`).join('')}
+      ${chatBusy ? '<div class="chat-typing"><span class="spinner"></span> working on it…</div>' : ''}
+    </div>
+    <div class="chat-chips">
+      ${CHAT_SUGGESTIONS.map((s) => `<button class="chat-chip" onclick="sendChat('${s.replace(/'/g, '')}')">${esc(s)}</button>`).join('')}
+    </div>
+    <div class="chat-input-row">
+      <input class="input" id="chat-input" placeholder="Ask anything — “find nurses with oncology experience”, “who fits the nurse job?”…"
+        onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn btn-primary" onclick="sendChat()" ${chatBusy ? 'disabled' : ''}>Send</button>
+    </div>
+  </div>`;
+};
+
+window.sendChat = async (preset) => {
+  if (chatBusy) return;
+  const input = $('#chat-input');
+  const msg = (preset || (input ? input.value : '')).trim();
+  if (!msg) return;
+  state.chat.push({ role: 'me', text: msg });
+  chatBusy = true;
+  render();
+  scrollChat();
+  let html;
+  try { html = await assistantRespond(msg); }
+  catch (e) { html = 'Something went wrong running that — try rephrasing.'; }
+  chatBusy = false;
+  state.chat.push({ role: 'ai', html });
+  if (state.route === 'assistant') { render(); scrollChat(); const el = $('#chat-input'); if (el) el.focus(); }
+};
+
+function scrollChat() {
+  const el = $('#chat-scroll');
+  if (el) el.scrollTop = el.scrollHeight;
+}
 
 /* ============================== Boot ===================================== */
 (async function boot() {

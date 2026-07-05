@@ -18,23 +18,29 @@ Note: `public/index.html` is the interface, but it does not work opened directly
 
 ## What is inside
 
+Built on the patterns of the market-leading agency platforms (Bullhorn, Vincere, Loxo): one database for clients + candidates + jobs, kanban pipelines, placement analytics, CV parsing, instant global search, and an assistant.
+
 | Module | What it does |
 |---|---|
-| **Dashboard** | Open roles, pipeline totals, interview count, recent activity. |
+| **Dashboard** | Open roles, pipeline totals, weighted revenue forecast, follow-ups due (overdue flagged), recent activity. |
+| **Assistant** | A recruiting copilot chat. Understands "find ICU nurses available now", "who fits the ML Engineer job?", "search the market for staff nurse", "who works at Equinix?", "what should I do today?", "remind me to call X tomorrow", "how is revenue?" — every answer executes real searches on your data. Set an `ANTHROPIC_API_KEY` environment variable before starting the server and free-form questions route to Claude. |
+| **Pipeline Board** | Kanban view of every candidate in every open pipeline. Drag cards across stages; dropping on **Placed** books the placement fee automatically (fee % × annual salary). |
+| **Reports** | Booked fees, weighted pipeline forecast (stage-weighted: Offer 75%, Interview 45%, Submitted 25%…), average time-to-fill, funnel conversion, source effectiveness, revenue by client. |
 | **Clients** | Employer accounts with contacts, notes and their job orders. |
 | **Job Orders** | Roles you are working, each with an auto-extracted prerequisite list and a stage-by-stage candidate pipeline (Sourcing → Screening → Submitted → Interview → Offer → Placed). |
-| **Candidates** | Your internal database. Search by skill ("ICU", "Kubernetes", "chiller"), then review the results. |
+| **Candidates** | Your internal database. Search understands synonyms and typos; adding a candidate has a **paste-CV parser** (name, title, contact, years, education, skills, certs and summary auto-extracted) plus duplicate detection. |
 | **Market Intel** | Live job listings pulled from the MyCareersFuture Singapore API — real postings, not mock data. Every listing is classified as **direct employer** (a BD prospect — one click adds them to Clients) or **recruitment agency** (a competitor), with filter tabs for each. One click extracts and highlights the prerequisites; another scores every candidate against them; a third imports the posting as a job order. |
 | **Talent Map** | Company-level intelligence. For every company: which of your candidates work there now, which are alumni (warm intro paths), and which external people you are hunting. Each company page opens with an **organisational chart** — Leadership / Management / Senior / Team layers inferred from job titles, showing your candidates (green), your hunt targets (coral), and dashed "no coverage" gaps you can click to start hunting. Tracks headhunt targets through Identified → Approached → In conversation → CV obtained. "Check live hiring" queries MyCareersFuture for that company's real open roles; the web-search buttons open pre-built LinkedIn people searches and Google x-ray searches (`site:linkedin.com/in "Company" "Role"`) for finding people to hunt. |
 | **CV Review** | The keyboard-first review mode. |
 
 **Real vs sample data:** market searches and live-hiring checks are real (MyCareersFuture government API). The seeded candidates, clients, and the three `[Example]` hunt targets are fictional placeholders — replace them with real ones as you work.
 
-## CV Review keys
+## Keyboard
 
 | Key | Action |
 |---|---|
-| `↓` / `↑` (or `j` / `k`) | Next / previous CV — instant, no clicking |
+| `Ctrl+K` | Command palette — instant search across candidates, clients, jobs, companies and actions, anywhere in the app |
+| `↓` / `↑` (or `j` / `k`) | (CV Review) Next / previous CV — instant, no clicking |
 | `S` | Shortlist (auto-advances to the next CV) |
 | `X` | Reject (auto-advances) |
 | `Esc` | Exit review |

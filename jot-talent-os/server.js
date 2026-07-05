@@ -169,6 +169,44 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    /* Optional AI brain for the assistant: set ANTHROPIC_API_KEY in the
+       environment before `node server.js` and free-form questions route to
+       Claude. Without a key the assistant's built-in intent engine still
+       handles search, matching, market scans, tasks and reports. */
+    if (url.pathname === '/api/assistant' && req.method === 'POST') {
+      const apiKey = process.env.ANTHROPIC_API_KEY;
+      if (!apiKey) return send(res, 200, JSON.stringify({ ok: false, reason: 'no-key' }));
+      try {
+        const body = JSON.parse(await readBody(req));
+        const payload = JSON.stringify({
+          model: 'claude-sonnet-5',
+          max_tokens: 1024,
+          system: 'You are the TalentOS assistant for Jobs of Tomorrow, a Singapore recruitment agency (healthcare, data centres, AI). Answer briefly and concretely using the database summary provided. Amounts are SGD monthly salaries; fees are % of annual salary.',
+          messages: [{ role: 'user', content: 'Database summary:\n' + JSON.stringify(body.context).slice(0, 12000) + '\n\nQuestion: ' + String(body.message || '').slice(0, 2000) }],
+        });
+        const result = await new Promise((resolve, reject) => {
+          const r = https.request({
+            hostname: 'api.anthropic.com', path: '/v1/messages', method: 'POST',
+            headers: {
+              'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload),
+              'x-api-key': apiKey, 'anthropic-version': '2023-06-01',
+            }, timeout: 30000,
+          }, (resp) => {
+            let data = '';
+            resp.on('data', (c) => (data += c));
+            resp.on('end', () => { try { resolve(JSON.parse(data)); } catch (e) { reject(e); } });
+          });
+          r.on('timeout', () => r.destroy(new Error('timed out')));
+          r.on('error', reject);
+          r.write(payload); r.end();
+        });
+        const text = (result.content && result.content[0] && result.content[0].text) || result.error && result.error.message || 'No answer.';
+        return send(res, 200, JSON.stringify({ ok: true, text }));
+      } catch (e) {
+        return send(res, 200, JSON.stringify({ ok: false, reason: String(e.message || e) }));
+      }
+    }
+
     if (url.pathname === '/api/market/detail' && req.method === 'GET') {
       const id = url.searchParams.get('id') || '';
       if (!id.trim()) return send(res, 400, JSON.stringify({ error: 'Missing id' }));

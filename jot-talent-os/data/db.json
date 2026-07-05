@@ -875,5 +875,26 @@
       "notes": "Fictional example - replace with a real person. Spoke at AI DevDay 2026.",
       "addedDate": "2026-07-04"
     }
+  ],
+  "placements": [],
+  "tasks": [
+    {
+      "id": "task-001",
+      "text": "Chase Dr. Colin Teo for interview feedback on Nurul Aisyah",
+      "due": "2026-07-06",
+      "refType": "job",
+      "refId": "job-001",
+      "done": false,
+      "createdDate": "2026-07-02"
+    },
+    {
+      "id": "task-002",
+      "text": "Send Equinox DC the shortlist for Critical Facilities Engineer",
+      "due": "2026-07-04",
+      "refType": "job",
+      "refId": "job-002",
+      "done": false,
+      "createdDate": "2026-07-01"
+    }
   ]
 }
