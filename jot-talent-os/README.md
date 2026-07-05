@@ -32,6 +32,7 @@ Built on the patterns of the market-leading agency platforms (Bullhorn, Vincere,
 | **Market Intel** | Live job listings pulled from the MyCareersFuture Singapore API — real postings, not mock data. Every listing is classified as **direct employer** (a BD prospect — one click adds them to Clients) or **recruitment agency** (a competitor), with filter tabs for each. One click extracts and highlights the prerequisites; another scores every candidate against them; a third imports the posting as a job order. |
 | **Talent Map** | Company-level intelligence. For every company: which of your candidates work there now, which are alumni (warm intro paths), and which external people you are hunting. Each company page opens with an **organisational chart** — Leadership / Management / Senior / Team layers inferred from job titles, showing your candidates (green), your hunt targets (coral), and dashed "no coverage" gaps you can click to start hunting. Tracks headhunt targets through Identified → Approached → In conversation → CV obtained. "Check live hiring" queries MyCareersFuture for that company's real open roles; the web-search buttons open pre-built LinkedIn people searches and Google x-ray searches (`site:linkedin.com/in "Company" "Role"`) for finding people to hunt. |
 | **CV Review** | The keyboard-first review mode. |
+| **Integrations** | Connect Manatal (your recruitment CRM/ATS). Shows connection status and a one-click "Sync candidates from Manatal" that pulls your Manatal database in, matching existing candidates by email and adding new ones with skills auto-extracted from their profile. |
 
 **Real vs sample data:** market searches and live-hiring checks are real (MyCareersFuture government API). The seeded candidates, clients, and the three `[Example]` hunt targets are fictional placeholders — replace them with real ones as you work.
 
@@ -57,6 +58,17 @@ The engine reads a job description and pulls out:
 - **Certifications** — professional registrations and certs treated separately
 
 Candidates are then scored: skills 55%, certifications 15%, years of experience 20%, education 10% (weights re-normalise when a category is absent from the posting).
+
+## Connecting Manatal (or Claude for the Assistant)
+
+Credentials never go through chat or the browser — they live in one local file only.
+
+1. Copy `.env.example` to `.env` (same folder). `.env` is git-ignored — it stays on this machine and is never committed.
+2. Open `.env` yourself in Notepad and paste your token(s) in:
+   - `MANATAL_API_TOKEN` — from Manatal: Administration → Features → Open API → Generate new token (Enterprise Plus plan).
+   - `ANTHROPIC_API_KEY` — optional, only needed for the Assistant's free-form Claude answers.
+3. Close and reopen `Start TalentOS.bat` so the server picks up the new value.
+4. Open the **Integrations** tab to confirm the connection, then press "Sync candidates from Manatal".
 
 ## Data
 

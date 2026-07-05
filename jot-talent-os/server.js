@@ -15,6 +15,23 @@ const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const DB_FILE = path.join(ROOT, 'data', 'db.json');
 
+/* Load local secrets from .env (git-ignored — never committed). Values
+   already set in the real environment take priority over the file. */
+(function loadDotEnv() {
+  const envPath = path.join(ROOT, '.env');
+  if (!fs.existsSync(envPath)) return;
+  fs.readFileSync(envPath, 'utf8').split(/\r?\n/).forEach((line) => {
+    const m = line.match(/^\s*([\w.-]+)\s*=\s*(.*)\s*$/);
+    if (!m) return;
+    const key = m[1];
+    let val = m[2];
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    if (process.env[key] === undefined) process.env[key] = val;
+  });
+})();
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -140,6 +157,55 @@ function normalizeMCF(raw) {
   });
 }
 
+/* ---- Manatal ATS/CRM proxy ------------------------------------------------
+   Auth per Manatal's docs: header "Authorization: Token <token>" against
+   https://api.manatal.com/open/v3/. Requires the Enterprise Plus plan. */
+function manatalRequest(pathname, method) {
+  const token = process.env.MANATAL_API_TOKEN;
+  if (!token) return Promise.reject(Object.assign(new Error('No Manatal token configured'), { code: 'no-token' }));
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: 'api.manatal.com',
+      path: '/open/v3' + pathname,
+      method: method || 'GET',
+      headers: { 'Authorization': 'Token ' + token, 'Accept': 'application/json' },
+      timeout: 20000,
+    }, (resp) => {
+      let data = '';
+      resp.on('data', (c) => (data += c));
+      resp.on('end', () => {
+        if (resp.statusCode === 401 || resp.statusCode === 403) {
+          return reject(Object.assign(new Error('Manatal rejected the token (401/403) — check it in Administration > Open API'), { code: 'auth' }));
+        }
+        if (resp.statusCode < 200 || resp.statusCode >= 300) {
+          return reject(new Error(`Manatal responded ${resp.statusCode}: ${data.slice(0, 200)}`));
+        }
+        try { resolve(JSON.parse(data)); } catch (e) { reject(e); }
+      });
+    });
+    req.on('timeout', () => req.destroy(new Error('Manatal request timed out')));
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+function normalizeManatalCandidate(m) {
+  return {
+    manatalId: m.id,
+    name: m.full_name || [m.first_name, m.last_name].filter(Boolean).join(' ') || 'Unnamed candidate',
+    title: m.current_position || '',
+    education: m.latest_degree ? [m.latest_degree, m.latest_university].filter(Boolean).join(', ') : (m.latest_university || ''),
+    email: m.email || '',
+    phone: m.phone_number || '',
+    location: (m.candidate_location && m.candidate_location.name) || m.address || '',
+    currentEmployer: m.current_company || '',
+    source: 'Manatal',
+    summary: m.description ? stripHtml(m.description).slice(0, 800) : '',
+    tags: (m.candidate_tags || []).map((t) => (t && t.name) || t).filter(Boolean),
+    updatedAt: m.updated_at || null,
+  };
+}
+
 /* ---- HTTP server --------------------------------------------------------- */
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
@@ -204,6 +270,46 @@ const server = http.createServer(async (req, res) => {
         return send(res, 200, JSON.stringify({ ok: true, text }));
       } catch (e) {
         return send(res, 200, JSON.stringify({ ok: false, reason: String(e.message || e) }));
+      }
+    }
+
+    if (url.pathname === '/api/manatal/status' && req.method === 'GET') {
+      if (!process.env.MANATAL_API_TOKEN) return send(res, 200, JSON.stringify({ connected: false, reason: 'no-token' }));
+      try {
+        await manatalRequest('/candidates/?page_size=1');
+        return send(res, 200, JSON.stringify({ connected: true }));
+      } catch (e) {
+        return send(res, 200, JSON.stringify({ connected: false, reason: e.code || 'error', message: String(e.message || e) }));
+      }
+    }
+
+    if (url.pathname === '/api/manatal/candidates' && req.method === 'GET') {
+      const q = url.searchParams.get('q') || '';
+      const page = url.searchParams.get('page') || '1';
+      try {
+        const qp = q.trim() ? `&full_name=${encodeURIComponent(q.trim())}` : '';
+        const raw = await manatalRequest(`/candidates/?page_size=25&page=${encodeURIComponent(page)}${qp}`);
+        const results = (raw.results || raw || []).map(normalizeManatalCandidate);
+        return send(res, 200, JSON.stringify({ ok: true, total: raw.count != null ? raw.count : results.length, next: !!raw.next, results }));
+      } catch (e) {
+        return send(res, 200, JSON.stringify({ ok: false, reason: e.code || 'error', error: String(e.message || e) }));
+      }
+    }
+
+    if (url.pathname === '/api/manatal/sync' && req.method === 'POST') {
+      try {
+        const body = JSON.parse(await readBody(req) || '{}');
+        const pages = Math.min(parseInt(body.pages, 10) || 1, 10);
+        let all = [];
+        for (let p = 1; p <= pages; p++) {
+          const raw = await manatalRequest(`/candidates/?page_size=100&page=${p}`);
+          const batch = (raw.results || []).map(normalizeManatalCandidate);
+          all = all.concat(batch);
+          if (!raw.next) break;
+        }
+        return send(res, 200, JSON.stringify({ ok: true, candidates: all }));
+      } catch (e) {
+        return send(res, 200, JSON.stringify({ ok: false, reason: e.code || 'error', error: String(e.message || e) }));
       }
     }
 

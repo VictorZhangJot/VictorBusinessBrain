@@ -768,6 +768,7 @@ function navigate() {
     a.classList.toggle('active', a.dataset.route === state.route);
   });
   render();
+  if (state.route === 'integrations' && !state.manatal.status) checkManatalStatus();
 }
 window.addEventListener('hashchange', navigate);
 
@@ -2104,6 +2105,118 @@ function tasksPanel() {
       </div>`).join('') || '<div class="muted small">Nothing pending. Ask the assistant to “remind me to…”.</div>'}
   </div>`;
 }
+
+/* ============================ Integrations ================================
+   Manatal ATS/CRM connection. The API token lives only in jot-talent-os/.env
+   (git-ignored) and never passes through this browser code or the chat —
+   the server reads it directly and proxies requests. */
+state.manatal = { status: null, syncing: false, lastSync: null };
+
+async function checkManatalStatus() {
+  try {
+    const resp = await fetch('/api/manatal/status');
+    state.manatal.status = await resp.json();
+  } catch (e) {
+    state.manatal.status = { connected: false, reason: 'error', message: String(e.message || e) };
+  }
+  if (state.route === 'integrations') render();
+}
+
+VIEWS.integrations = () => {
+  const st = state.manatal.status;
+  const connected = st && st.connected;
+  return `
+  <div class="page-head">
+    <div>
+      <div class="page-title">Integrations</div>
+      <div class="page-desc">Connect TalentOS to the systems you already pay for. Credentials live only in the local <code>.env</code> file on this machine — never in the browser, never in chat, never committed to GitHub.</div>
+    </div>
+  </div>
+  <div class="card" style="max-width:680px">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start">
+      <div>
+        <div class="section-title" style="margin-bottom:4px">Manatal</div>
+        <div class="small muted">Recruitment CRM &amp; ATS — sourcing, candidate database, application pipelines.</div>
+      </div>
+      ${st == null
+        ? '<span class="badge badge-stage">Checking…</span>'
+        : connected
+          ? '<span class="badge badge-open">● Connected</span>'
+          : st.reason === 'no-token'
+            ? '<span class="badge badge-stage">Not configured</span>'
+            : '<span class="badge badge-agency">⚠ Connection failed</span>'}
+    </div>
+
+    ${st && !connected && st.reason !== 'no-token' ? `<div class="prereq-box" style="border-color:var(--red)"><span style="color:var(--red)">${esc(st.message || 'Could not reach Manatal.')}</span></div>` : ''}
+
+    ${st && st.reason === 'no-token' ? `
+      <div class="prereq-box">
+        <div class="prereq-label">To connect</div>
+        <ol style="margin-left:18px; line-height:1.9; font-size:13px">
+          <li>In Manatal: <b>Administration → Features → Open API → Generate new token</b> (requires the Enterprise Plus plan).</li>
+          <li>On this computer, open <code>jot-talent-os/.env</code> in Notepad (not through Claude — keep the token out of any chat).</li>
+          <li>Paste it as <code>MANATAL_API_TOKEN=your-token-here</code> and save.</li>
+          <li>Close and reopen <code>Start TalentOS.bat</code> so the server picks it up, then press Refresh below.</li>
+        </ol>
+      </div>` : ''}
+
+    ${connected ? `
+      <div class="compare-bar" style="margin-top:14px">
+        <button class="btn btn-primary" onclick="syncManatal()" ${state.manatal.syncing ? 'disabled' : ''}>
+          ${state.manatal.syncing ? '<span class="spinner"></span> Syncing…' : '⇄ Sync candidates from Manatal'}
+        </button>
+        <span class="small muted">${state.manatal.lastSync ? `Last sync: ${esc(state.manatal.lastSync)}` : 'Pulls your Manatal candidate database into TalentOS — matching, search and CV Review all apply to them immediately.'}</span>
+      </div>` : ''}
+
+    <div style="margin-top:14px"><button class="btn btn-sm" onclick="checkManatalStatus()">↻ Refresh status</button></div>
+  </div>`;
+};
+
+window.checkManatalStatus = checkManatalStatus;
+
+window.syncManatal = async () => {
+  state.manatal.syncing = true;
+  render();
+  try {
+    const resp = await fetch('/api/manatal/sync', { method: 'POST', body: JSON.stringify({ pages: 3 }) });
+    const data = await resp.json();
+    if (!data.ok) {
+      toast('Sync failed — ' + (data.error || data.reason || 'unknown error'));
+    } else {
+      let added = 0, updated = 0;
+      (data.candidates || []).forEach((m) => {
+        const existing = state.db.candidates.find((c) =>
+          (c.manatalId && c.manatalId === m.manatalId) || (m.email && c.email && c.email.toLowerCase() === m.email.toLowerCase()));
+        if (existing) {
+          Object.assign(existing, {
+            manatalId: m.manatalId, title: existing.title || m.title, education: existing.education || m.education,
+            email: existing.email || m.email, phone: existing.phone || m.phone, location: existing.location || m.location,
+          });
+          invalidateCandidateCaches(existing);
+          updated++;
+        } else {
+          const p = extractPrereqs([m.title, m.summary, (m.tags || []).join(' ')].join('. '));
+          state.db.candidates.push({
+            id: uid('cand'), manatalId: m.manatalId, name: m.name, title: m.title || 'Candidate',
+            domain: 'General', yearsExp: 0, education: m.education, skills: p.skills.map((s) => s.name),
+            certs: p.certs.map((c) => c.name), workPass: 'Unknown', salaryExpect: null,
+            availability: 'To confirm', location: m.location, email: m.email, phone: m.phone,
+            status: 'Active', source: 'Manatal', summary: m.summary, experience: [],
+          });
+          added++;
+        }
+      });
+      saveDb();
+      state.manatal.lastSync = new Date().toLocaleString('en-SG');
+      logActivity('Manatal sync', `Synced from Manatal — ${added} new candidate${added === 1 ? '' : 's'}, ${updated} updated.`, null, null);
+      toast(`Synced — ${added} new, ${updated} updated`);
+    }
+  } catch (e) {
+    toast('Sync failed — ' + String(e.message || e));
+  }
+  state.manatal.syncing = false;
+  render();
+};
 
 /* ============================ Match results ============================== */
 VIEWS.matches = () => {
