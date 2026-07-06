@@ -6,6 +6,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["jot-talent-os/server.js"],
       "port": 4820
+    },
+    {
+      "name": "jot-website",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "http-server", "jot-website", "-p", "4173", "-c-1"],
+      "port": 4173
     }
   ]
 }
