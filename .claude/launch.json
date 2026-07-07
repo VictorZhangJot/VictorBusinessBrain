@@ -8,6 +8,12 @@
       "port": 4820
     },
     {
+      "name": "flowrecruit",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["flowrecruit/server.js"],
+      "port": 4930
+    },
+    {
       "name": "jot-website",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["--yes", "http-server", "jot-website", "-p", "4173", "-c-1"],

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowRecruit X — Recruitment CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%236455FF'/><path d='M9 22V10h11v3h-7.5v2.5H19v3h-6.5V22z' fill='white'/></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">F</div>
+      <div class="brand-name">FlowRecruit <span>X</span></div>
+    </div>
+    <nav class="nav" id="mainNav">
+      <a href="#/dashboard" data-route="dashboard"><span class="nav-ic">◆</span> Dashboard</a>
+      <a href="#/candidates" data-route="candidates"><span class="nav-ic">👤</span> Candidates</a>
+      <a href="#/jobs" data-route="jobs"><span class="nav-ic">💼</span> Jobs</a>
+      <a href="#/companies" data-route="companies"><span class="nav-ic">🏢</span> Companies</a>
+      <a href="#/contacts" data-route="contacts"><span class="nav-ic">📇</span> Contacts</a>
+      <a href="#/deals" data-route="deals"><span class="nav-ic">💰</span> Deals</a>
+      <a href="#/sequences" data-route="sequences"><span class="nav-ic">✉️</span> Sequences</a>
+      <a href="#/recipes" data-route="recipes"><span class="nav-ic">⚡</span> Recipes</a>
+      <a href="#/tasks" data-route="tasks"><span class="nav-ic">☑️</span> Tasks</a>
+      <a href="#/reports" data-route="reports"><span class="nav-ic">📊</span> Reports</a>
+      <div class="nav-sep">Intelligence</div>
+      <a href="#/market" data-route="market" class="nav-market"><span class="nav-ic">🛰️</span> Market Match <span class="x10-badge">X10</span></a>
+      <a href="#/settings" data-route="settings"><span class="nav-ic">⚙️</span> Settings</a>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="aira-launch" id="airaLaunch"><span class="aira-dot"></span> Ask AIRA</button>
+      <div class="demo-note">Demo build · seed data is fictional</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="global-search">
+        <input id="globalSearch" type="text" placeholder="Search candidates, jobs, companies, contacts…  (or ask AIRA in natural language)">
+        <div id="searchResults" class="search-results hidden"></div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost" id="quickTask">+ Task</button>
+        <button class="btn btn-primary" id="quickAdd">+ Add</button>
+        <div class="user-chip" id="userChip"></div>
+      </div>
+    </header>
+    <div id="view" class="view"></div>
+  </main>
+
+  <div id="airaPanel" class="aira-panel hidden">
+    <div class="aira-head">
+      <div><span class="aira-dot"></span> <strong>AIRA</strong> <span class="aira-sub" id="airaEngine">local engine</span></div>
+      <button class="icon-btn" id="airaClose">✕</button>
+    </div>
+    <div class="aira-body" id="airaBody">
+      <div class="aira-msg aira-bot">Hi — I'm AIRA, your recruiting copilot. Try:<br><em>"find kubernetes engineers in singapore"</em><br><em>"how are my open jobs"</em><br><em>"revenue snapshot"</em></div>
+    </div>
+    <form class="aira-input" id="airaForm">
+      <input id="airaText" type="text" placeholder="Ask anything about your CRM data…" autocomplete="off">
+      <button class="btn btn-primary" type="submit">Send</button>
+    </form>
+  </div>
+
+  <div id="modalRoot"></div>
+  <div id="toastRoot"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
