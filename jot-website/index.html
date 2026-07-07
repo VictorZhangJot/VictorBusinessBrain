@@ -35,13 +35,26 @@
 </head>
 <body>
 
+<!-- ===== TOP UTILITY BAR ===== -->
+<div class="topbar">
+  <div class="wrap">
+    <div class="left">Recruitment for AI, Data Centre &amp; Healthcare · Singapore</div>
+    <div class="right">
+      <a href="tel:+6588770287"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>+65 8877 0287</a>
+      <a href="mailto:enquiry@jot.com.sg"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>enquiry@jot.com.sg</a>
+    </div>
+  </div>
+</div>
+
 <header>
   <div class="wrap nav">
     <a href="index.html" class="logo"><span class="logo-mark">JT</span>Jobs of Tomorrow</a>
     <nav class="nav-links" id="navLinks">
-      <a href="employers.html">For Employers</a>
-      <a href="job-seekers.html">For Job Seekers</a>
+      <a href="jobs.html">Search Jobs</a>
+      <a href="employers.html">Employers</a>
+      <a href="job-seekers.html">Job Seekers</a>
       <a href="sectors.html">Sectors</a>
+      <a href="salary-guide.html">Salary Guide</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
       <a href="employers.html#request" class="btn btn-amber">Start a Search</a>
@@ -52,16 +65,16 @@
 
 <main>
 
-  <!-- ===== HERO ===== -->
+  <!-- ===== HERO + SEARCH ===== -->
   <div class="hero">
     <div class="wrap">
       <span class="eyebrow">Recruitment Consultancy · Singapore</span>
       <h1>Hire for where your industry is going, <em>not where it has been.</em></h1>
       <p>Jobs of Tomorrow finds qualified AI, Data Centre and healthcare talent fast — screening a daily-updated candidate database with AI-assisted tools, then negotiating an outcome that works for both your budget and the candidate's expectations.</p>
-      <form class="searchbar" action="mailto:enquiry@jot.com.sg" method="get" onsubmit="this.action='mailto:enquiry@jot.com.sg?subject='+encodeURIComponent('Hiring enquiry: '+ (this.role.value||'a role') + (this.sector.value?(' — '+this.sector.value):''));">
+      <form class="searchbar" action="jobs.html" method="get">
         <div class="field">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" name="role" placeholder="What role are you hiring for?">
+          <input type="text" name="q" placeholder="Job title or keyword">
         </div>
         <div class="field">
           <svg viewBox="0 0 24 24"><path d="M3 21h18M6 21V7l6-4 6 4v14"/></svg>
@@ -72,7 +85,11 @@
             <option>Corporate Functions</option>
           </select>
         </div>
-        <button type="submit" class="btn btn-amber">Start a Search</button>
+        <div class="field">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <select name="location" aria-label="Location"><option>Singapore</option><option>Remote / Hybrid</option></select>
+        </div>
+        <button type="submit" class="btn btn-amber">Search Jobs</button>
       </form>
     </div>
   </div>
@@ -87,39 +104,96 @@
     </div>
   </div>
 
-  <!-- ===== BROWSE BY SECTOR ===== -->
+  <!-- ===== BROWSE BY DISCIPLINE ===== -->
   <section>
     <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Sectors</span>
-        <h2>Focused where the market is moving fastest.</h2>
-        <p>We do not chase every open role in every industry. We stay within the sectors we read closely — so our advice reflects where demand actually is, not where it was three years ago.</p>
+      <div class="section-head spread">
+        <div>
+          <span class="eyebrow">Browse Jobs</span>
+          <h2>Find your discipline.</h2>
+        </div>
+        <a href="jobs.html" class="link-more">View all roles we recruit for →</a>
       </div>
-      <div class="grid-3">
-        <a href="sectors.html#ai-data-centre" class="card lead">
-          <div class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><line x1="7" y1="7.5" x2="7" y2="7.5"/><line x1="7" y1="16.5" x2="7" y2="16.5"/><line x1="11" y1="7.5" x2="17" y2="7.5"/><line x1="11" y1="16.5" x2="17" y2="16.5"/></svg></div>
-          <h3>AI &amp; Data Centre</h3>
-          <p>Recruitment across all classes of AI and Data Centre roles, advised by a current read on which skillsets are actually in demand.</p>
-          <span class="more">Explore sector →</span>
-        </a>
-        <a href="sectors.html#healthcare" class="card">
-          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 21c-4.5-3.6-8-6.6-8-10.2A4.6 4.6 0 0 1 8.6 6c1.4 0 2.7.7 3.4 1.8A4.1 4.1 0 0 1 15.4 6 4.6 4.6 0 0 1 20 10.8c0 3.6-3.5 6.6-8 10.2z"/></svg></div>
-          <h3>Healthcare</h3>
-          <p>From bulk staffing of support roles to specialised clinical placements — with the regulatory and pass-application process handled for you.</p>
-          <span class="more">Explore sector →</span>
-        </a>
-        <a href="sectors.html#corporate" class="card">
-          <div class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <h3>Corporate Functions</h3>
-          <p>The supporting roles that keep our clients' businesses running — sales, marketing, finance and HR.</p>
-          <span class="more">Explore sector →</span>
-        </a>
+      <div class="browse-grid">
+        <div class="browse-col">
+          <div class="head"><div class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><line x1="7" y1="7.5" x2="7" y2="7.5"/><line x1="7" y1="16.5" x2="7" y2="16.5"/></svg></div><h3>AI &amp; Data Centre</h3></div>
+          <ul>
+            <li><a href="jobs.html?sector=AI%20%26%20Data%20Centre">Machine Learning Engineer <span>View</span></a></li>
+            <li><a href="jobs.html?sector=AI%20%26%20Data%20Centre">Site Reliability Engineer <span>View</span></a></li>
+            <li><a href="jobs.html?sector=AI%20%26%20Data%20Centre">Data Centre Technician <span>View</span></a></li>
+            <li><a href="jobs.html?sector=AI%20%26%20Data%20Centre">Infrastructure Engineer <span>View</span></a></li>
+            <li><a href="jobs.html?sector=AI%20%26%20Data%20Centre">Data Centre Operations Manager <span>View</span></a></li>
+            <li><a href="jobs.html?sector=AI%20%26%20Data%20Centre">Network / Solutions Architect <span>View</span></a></li>
+          </ul>
+        </div>
+        <div class="browse-col">
+          <div class="head"><div class="icon"><svg viewBox="0 0 24 24"><path d="M12 21c-4.5-3.6-8-6.6-8-10.2A4.6 4.6 0 0 1 8.6 6c1.4 0 2.7.7 3.4 1.8A4.1 4.1 0 0 1 15.4 6 4.6 4.6 0 0 1 20 10.8c0 3.6-3.5 6.6-8 10.2z"/></svg></div><h3>Healthcare</h3></div>
+          <ul>
+            <li><a href="jobs.html?sector=Healthcare">Registered / Staff Nurse <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Healthcare">Doctor / Medical Officer <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Healthcare">Physiotherapist <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Healthcare">Radiographer <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Healthcare">Allied Health Professional <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Healthcare">Healthcare Support Staff <span>View</span></a></li>
+          </ul>
+        </div>
+        <div class="browse-col">
+          <div class="head"><div class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg></div><h3>Corporate Functions</h3></div>
+          <ul>
+            <li><a href="jobs.html?sector=Corporate%20Functions">Sales Manager <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Corporate%20Functions">Marketing Manager <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Corporate%20Functions">Accountant <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Corporate%20Functions">Finance Manager <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Corporate%20Functions">HR Business Partner <span>View</span></a></li>
+            <li><a href="jobs.html?sector=Corporate%20Functions">Talent Acquisition Specialist <span>View</span></a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== DUAL CTA ===== -->
+  <!-- ===== LATEST OPPORTUNITIES ===== -->
   <section class="band">
+    <div class="wrap">
+      <div class="section-head spread">
+        <div>
+          <span class="eyebrow">Roles We Are Recruiting For</span>
+          <h2>Representative opportunities.</h2>
+        </div>
+        <a href="jobs.html" class="link-more">See all &amp; register interest →</a>
+      </div>
+      <div class="joblist">
+        <div class="job-card">
+          <span class="tag">AI &amp; Data Centre</span>
+          <h3>Data Centre Operations Manager</h3>
+          <div class="meta"><span><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Singapore</span><span><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Permanent</span><span>Competitive</span></div>
+          <div class="foot"><span class="apply">Register interest →</span></div>
+        </div>
+        <div class="job-card">
+          <span class="tag">Healthcare</span>
+          <h3>Registered Nurse — Specialist Ward</h3>
+          <div class="meta"><span><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Singapore</span><span><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Permanent</span><span>Competitive</span></div>
+          <div class="foot"><span class="apply">Register interest →</span></div>
+        </div>
+        <div class="job-card">
+          <span class="tag">AI &amp; Data Centre</span>
+          <h3>Machine Learning Engineer</h3>
+          <div class="meta"><span><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Singapore</span><span><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Permanent</span><span>Competitive</span></div>
+          <div class="foot"><span class="apply">Register interest →</span></div>
+        </div>
+        <div class="job-card">
+          <span class="tag">Corporate Functions</span>
+          <h3>Finance Manager</h3>
+          <div class="meta"><span><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Singapore</span><span><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Permanent</span><span>Competitive</span></div>
+          <div class="foot"><span class="apply">Register interest →</span></div>
+        </div>
+      </div>
+      <p class="form-note" style="text-align:center;margin-top:24px">These are representative of the roles we recruit for across our sectors. For current live vacancies, <a href="contact.html" style="color:var(--teal)">get in touch</a> and we will share what is open right now.</p>
+    </div>
+  </section>
+
+  <!-- ===== DUAL CTA ===== -->
+  <section>
     <div class="wrap">
       <div class="section-head center">
         <span class="eyebrow">What would you like to do?</span>
@@ -143,7 +217,7 @@
   </section>
 
   <!-- ===== PROCESS ===== -->
-  <section>
+  <section class="band">
     <div class="wrap">
       <div class="section-head">
         <span class="eyebrow">How We Work</span>
@@ -160,6 +234,40 @@
     </div>
   </section>
 
+  <!-- ===== STATS ===== -->
+  <section>
+    <div class="wrap">
+      <div class="stat-grid">
+        <div class="stat"><strong>Days</strong><span>From scoping to a qualified shortlist</span></div>
+        <div class="stat"><strong>Zero</strong><span>Fees ever charged to candidates</span></div>
+        <div class="stat"><strong>Daily</strong><span>Candidate database refresh</span></div>
+        <div class="stat"><strong>3-month</strong><span>Replacement guarantee on every hire</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TALENT TRENDS PROMO ===== -->
+  <section class="band">
+    <div class="wrap">
+      <div class="promo">
+        <div>
+          <span class="eyebrow">Salary &amp; Hiring Insight</span>
+          <h2>A salary benchmark, built for your role.</h2>
+          <p>Requirements — and pay — move fastest in AI and Data Centre. Before you open a search, get a tailored read on what the market is paying and which skillsets are actually in demand.</p>
+          <a href="salary-guide.html" class="btn btn-amber">Request a benchmark</a>
+        </div>
+        <div class="promo-card">
+          <span class="label">What you receive</span>
+          <ul>
+            <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>A market-informed salary range for your specific role</li>
+            <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>The skillsets in demand right now, not three years ago</li>
+            <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>A candid view on how hard the role will be to fill</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== QUOTE ===== -->
   <div class="quote-band">
     <div class="wrap">
@@ -168,30 +276,64 @@
     </div>
   </div>
 
-  <!-- ===== PERSPECTIVES ===== -->
+  <!-- ===== TESTIMONIAL ===== -->
   <section>
     <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">What We Track</span>
-        <h2>Recruitment is a read on where your industry is going.</h2>
-        <p>We treat every search as one data point in a larger conversation about where our clients' markets are heading. These are the themes we watch most closely.</p>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <blockquote>&ldquo;We needed an operations manager but I was too tied up in the day-to-day to look. Jobs of Tomorrow scoped the role and sent qualified candidates within a couple of days. The hire freed me to hand over operations — and launch a second brand.&rdquo;</blockquote>
+        <div class="by">
+          <div class="av">F&amp;B</div>
+          <div><strong>Founder, F&amp;B group</strong><span>Operations Manager placement · Singapore</span></div>
+        </div>
       </div>
-      <div class="grid-3">
-        <a href="sectors.html#ai-data-centre" class="card">
-          <h3>The AI &amp; Data Centre skillset shift</h3>
-          <p>Requirements in this sector move faster than a static recruiting process can track. Hiring against a three-year-old job description means hiring for the past.</p>
-          <span class="more">Read more →</span>
+    </div>
+  </section>
+
+  <!-- ===== INSIGHTS ===== -->
+  <section class="band">
+    <div class="wrap">
+      <div class="section-head spread">
+        <div>
+          <span class="eyebrow">Insights</span>
+          <h2>What we track.</h2>
+        </div>
+        <a href="sectors.html" class="link-more">Explore our sectors →</a>
+      </div>
+      <div class="insights-grid">
+        <a href="job-seekers.html" class="article">
+          <div class="thumb"></div>
+          <div class="body"><span class="cat">Trust</span><h3>Why we refuse to charge candidates a fee</h3><p>The clearest way we know to earn trust before we have placed anyone.</p><span class="read">Read perspective →</span></div>
         </a>
-        <a href="sectors.html#healthcare" class="card">
-          <h3>Healthcare workforce bottlenecks</h3>
-          <p>Filling clinical and support roles increasingly means navigating source-country and local regulatory requirements — work we take off your desk.</p>
-          <span class="more">Read more →</span>
+        <a href="sectors.html#ai-data-centre" class="article">
+          <div class="thumb v2"></div>
+          <div class="body"><span class="cat">AI &amp; Data Centre</span><h3>Hiring for the skillset shift, not the last one</h3><p>Why a three-year-old job description means hiring for the past.</p><span class="read">Read perspective →</span></div>
         </a>
-        <a href="about.html" class="card">
-          <h3>The case for win-win hiring</h3>
-          <p>Why we refuse to charge candidates, and why a placement that only serves the deal is not a placement worth making.</p>
-          <span class="more">Read more →</span>
+        <a href="sectors.html#healthcare" class="article">
+          <div class="thumb v3"></div>
+          <div class="body"><span class="cat">Healthcare</span><h3>The regulatory work behind a foreign hire</h3><p>The passes and approvals we take off your desk entirely.</p><span class="read">Read perspective →</span></div>
         </a>
+        <a href="about.html" class="article">
+          <div class="thumb v4"></div>
+          <div class="body"><span class="cat">Approach</span><h3>What a win-win placement actually looks like</h3><p>Balancing your budget against the candidate's expectations.</p><span class="read">Read perspective →</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== REGISTER / NEWSLETTER ===== -->
+  <section>
+    <div class="wrap">
+      <div class="newsletter">
+        <div>
+          <span class="eyebrow">Stay Ahead</span>
+          <h2>Market insight, in your inbox.</h2>
+          <p>Occasional notes on hiring and salary trends across AI, Data Centre and healthcare in Singapore. No spam — unsubscribe any time.</p>
+        </div>
+        <form action="mailto:enquiry@jot.com.sg" method="get" onsubmit="this.action='mailto:enquiry@jot.com.sg?subject='+encodeURIComponent('Newsletter signup')+'&amp;body='+encodeURIComponent('Please add this email to your insights list: '+this.email.value);">
+          <input type="email" name="email" placeholder="Your work email" required>
+          <button type="submit" class="btn btn-amber">Subscribe</button>
+        </form>
       </div>
     </div>
   </section>
@@ -222,10 +364,12 @@
         <a href="employers.html">How we work</a>
         <a href="employers.html#request">Request a search</a>
         <a href="sectors.html">Sectors we serve</a>
+        <a href="salary-guide.html">Salary guide</a>
         <a href="employers.html#guarantee">Replacement guarantee</a>
       </div>
       <div class="foot-col">
         <h4>For Job Seekers</h4>
+        <a href="jobs.html">Search jobs</a>
         <a href="job-seekers.html">Why work with us</a>
         <a href="job-seekers.html#submit">Submit your CV</a>
         <a href="job-seekers.html#faq">Candidate FAQ</a>
