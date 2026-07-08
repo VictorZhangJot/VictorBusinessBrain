@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: "Source Serif 4", Georgia, serif;
+
+  --color-navy-950: #071224;
+  --color-navy-900: #0a1b33;
+  --color-navy-800: #102647;
+  --color-navy-700: #17325c;
+  --color-navy-600: #1f4076;
+
+  --color-accent-700: #1d4fd7;
+  --color-accent-600: #2563eb;
+  --color-accent-500: #2e6bff;
+  --color-accent-100: #dbe7ff;
+  --color-accent-50: #eef4ff;
+
+  --color-mist-50: #f7f9fc;
+  --color-mist-100: #eef1f6;
+  --color-mist-200: #e2e7ef;
+  --color-mist-300: #cbd3e0;
+
+  --color-good-600: #16a34a;
+  --color-good-100: #dcf5e5;
+
+  --color-warn-600: #d97706;
+  --color-warn-100: #fdf0d9;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background: var(--color-mist-50);
+  color: var(--color-navy-900);
+}
+
+/* Print: show only the resume sheet */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #resume-sheet,
+  #resume-sheet * {
+    visibility: visible;
+  }
+  #resume-sheet {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  @page {
+    margin: 14mm;
+  }
+}
