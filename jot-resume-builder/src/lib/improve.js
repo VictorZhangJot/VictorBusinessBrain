@@ -2,7 +2,19 @@
 // These are honest, rule-based rewrites: they never invent metrics or facts.
 // Later, this file is the natural place to swap in a Claude/OpenAI API call.
 
+// "Responsible for maintaining X" reads best as "Maintained X" — convert the
+// -ing verb to past tense instead of stacking two verbs ("managed maintaining").
+const IRREGULAR_PAST = {
+  running: "ran", building: "built", writing: "wrote", setting: "set",
+  keeping: "kept", leading: "led", making: "made", doing: "did",
+  getting: "got", driving: "drove", holding: "held", meeting: "met",
+  overseeing: "oversaw", bringing: "brought", buying: "bought",
+  selling: "sold", teaching: "taught", upkeeping: "maintained",
+};
+const pastTense = (gerund) => IRREGULAR_PAST[gerund.toLowerCase()] || gerund.slice(0, -3) + "ed";
+
 const VERB_UPGRADES = [
+  [/\b(?:responsible for|in charge of|tasked with) ([a-z]+ing)\b/gi, (m, g) => pastTense(g)],
   [/\bresponsible for managing\b/gi, "managed"],
   [/\bresponsible for\b/gi, "managed"],
   [/\bin charge of\b/gi, "led"],
@@ -40,7 +52,6 @@ const CASUAL_FIXES = [
   [/\bwon't\b/gi, "will not"],
   [/\bit's\b/gi, "it is"],
   [/\bstuff\b/gi, "tasks"],
-  [/\bthings\b/gi, "tasks"],
   [/\blots of\b/gi, "many"],
   [/\ba lot of\b/gi, "significant"],
 ];

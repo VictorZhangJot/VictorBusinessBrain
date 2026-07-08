@@ -9,6 +9,25 @@ export default function ReviewStep({ resume, update, role }) {
   const [copied, setCopied] = useState(false);
   const [leadOpen, setLeadOpen] = useState(false);
   const [pendingExport, setPendingExport] = useState(null);
+  const [report, setReport] = useState(null);
+
+  const applyImprovement = (imp) => {
+    const changes = [];
+    const newSummary = resume.summary ? imp.fn(resume.summary) : resume.summary;
+    if (newSummary !== resume.summary) {
+      changes.push({ where: "Career summary", before: resume.summary, after: newSummary });
+    }
+    const newExperiences = resume.experiences.map((job) => ({
+      ...job,
+      bullets: job.bullets.map((b) => {
+        const nb = imp.fn(b);
+        if (nb !== b) changes.push({ where: job.title || job.company || "Work experience", before: b, after: nb });
+        return nb;
+      }),
+    }));
+    if (changes.length) update({ summary: newSummary, experiences: newExperiences });
+    setReport({ label: imp.label, changes });
+  };
 
   const runExport = (kind) => {
     if (kind === "pdf") printResume();
@@ -102,18 +121,44 @@ export default function ReviewStep({ resume, update, role }) {
               key={imp.id}
               type="button"
               title={imp.hint}
-              onClick={() => {
-                update({
-                  summary: resume.summary ? imp.fn(resume.summary) : resume.summary,
-                  experiences: resume.experiences.map((j) => ({ ...j, bullets: j.bullets.map(imp.fn) })),
-                });
-              }}
+              onClick={() => applyImprovement(imp)}
               className="rounded-lg border border-mist-300 bg-white px-3.5 py-2 text-[13px] font-semibold text-navy-800 transition hover:border-accent-500 hover:text-accent-600"
             >
               {imp.label}
             </button>
           ))}
         </div>
+
+        {report && (
+          <div
+            className={
+              "mt-4 rounded-xl border p-4 " +
+              (report.changes.length ? "border-good-600/30 bg-good-100/40" : "border-mist-200 bg-mist-50")
+            }
+          >
+            {report.changes.length ? (
+              <>
+                <p className="text-[13px] font-bold text-good-600">
+                  ✓ {report.label}: updated {report.changes.length} place{report.changes.length === 1 ? "" : "s"} — see the preview
+                </p>
+                <ul className="mt-2.5 space-y-2.5">
+                  {report.changes.map((c, i) => (
+                    <li key={i} className="text-[12.5px] leading-relaxed">
+                      <p className="mb-0.5 text-[11px] font-bold uppercase tracking-wide text-navy-800/45">{c.where}</p>
+                      <p className="text-navy-800/50 line-through decoration-navy-800/30">{c.before}</p>
+                      <p className="font-medium text-navy-900">{c.after}</p>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="text-[13px] font-semibold text-navy-800/70">
+                “{report.label}” found nothing to fix — your current wording already follows this rule. That usually means
+                you used our suggested bullets, which are pre-polished. Try it after typing your own rough sentences.
+              </p>
+            )}
+          </div>
+        )}
         <div className="mt-5 rounded-xl bg-mist-50 p-4">
           <p className="mb-2 text-[12px] font-bold uppercase tracking-wide text-navy-800/50">🇸🇬 Singapore employer checklist</p>
           <ul className="space-y-1">
