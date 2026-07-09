@@ -183,6 +183,25 @@ export function Slider({ value, onChange, min = 0, max = 30, unit = 'years' }) {
   );
 }
 
+/** Salary input that shows thousands separators (8,000) while storing digits only. */
+export function MoneyInput({ value, onChange, placeholder }) {
+  const display = value ? Number(value).toLocaleString('en-US') : '';
+  return (
+    <div className="relative">
+      <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+        S$
+      </span>
+      <input
+        inputMode="numeric"
+        className="field-input !pl-10"
+        value={display}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
+      />
+    </div>
+  );
+}
+
 export function SelectInput({ value, onChange, options, placeholder = 'Select...' }) {
   return (
     <select

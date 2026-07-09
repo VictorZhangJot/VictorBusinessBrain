@@ -57,15 +57,26 @@ export default function PercentileTable({ salary }) {
               <td className="py-3 text-right font-semibold text-navy">{fmt(salary[row.key])}</td>
             </tr>
           ))}
-          <tr className="bg-green-50/60">
-            <td className="py-3 font-semibold text-green-700">Recommended asking range</td>
-            <td className="py-3 text-green-700">What we would quote for you</td>
-            <td className="py-3 text-right font-bold text-green-700">
-              {fmt(salary.recommendedMin)} – {fmt(salary.recommendedMax)}
-            </td>
-          </tr>
         </tbody>
       </table>
+
+      {/* Recommended asking range — full-width band below the table */}
+      <div className="mt-5 rounded-2xl border border-green-200 bg-green-50/70 p-5">
+        <p className="mb-4 text-sm font-semibold text-green-800">Recommended asking range</p>
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-green-600">Minimum</p>
+            <p className="text-2xl font-extrabold text-green-800">{fmt(salary.recommendedMin)}</p>
+            <p className="text-[11px] text-green-600">per month</p>
+          </div>
+          <div className="mb-4 h-1.5 flex-1 rounded-full bg-gradient-to-r from-green-300 to-green-600" />
+          <div className="text-right">
+            <p className="text-xs font-medium uppercase tracking-wide text-green-600">Maximum</p>
+            <p className="text-2xl font-extrabold text-green-800">{fmt(salary.recommendedMax)}</p>
+            <p className="text-[11px] text-green-600">per month</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

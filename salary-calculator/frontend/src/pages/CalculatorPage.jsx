@@ -6,11 +6,11 @@ import {
   SKILL_SUGGESTIONS, CERTIFICATION_SUGGESTIONS, TOOL_SUGGESTIONS,
 } from '../data/formOptions.js';
 import {
-  Field, AutocompleteInput, ChipInput, OptionCards, Slider, SelectInput,
+  Field, AutocompleteInput, ChipInput, OptionCards, Slider, SelectInput, MoneyInput,
 } from '../components/ui.jsx';
 import { calculateSalary, recommendJobs, recommendCompanies } from '../services/api.js';
 
-const STEPS = ['Current profile', 'Target role', 'Skills', 'Preferences'];
+const STEPS = ['Current profile', 'Role details', 'Skills', 'Preferences'];
 
 const INITIAL = {
   currentTitle: '',
@@ -18,7 +18,6 @@ const INITIAL = {
   qualification: '',
   currentMonthlySalary: '',
   currentAnnualPackage: '',
-  targetTitle: '',
   industry: '',
   specialization: '',
   seniority: '',
@@ -28,7 +27,6 @@ const INITIAL = {
   tools: [],
   workArrangement: '',
   companySize: '',
-  expectedMonthlySalary: '',
   workEligibility: '',
 };
 
@@ -48,7 +46,6 @@ export default function CalculatorPage({ onResult }) {
         return 'Please enter your current monthly base salary so we can show your market position.';
     }
     if (step === 1) {
-      if (!form.targetTitle.trim()) return 'Please enter your target job title.';
       if (!form.industry) return 'Please select an industry.';
     }
     return '';
@@ -67,11 +64,11 @@ export default function CalculatorPage({ onResult }) {
     setLoading(true);
     const profile = {
       ...form,
+      // The benchmark is for the candidate's current role.
+      targetTitle: form.currentTitle,
       yearsExperience: Number(form.yearsExperience),
       currentMonthlySalary: Number(form.currentMonthlySalary) || null,
       currentAnnualPackage: Number(form.currentAnnualPackage) || null,
-      expectedMonthlySalary: Number(form.expectedMonthlySalary) || null,
-      salaryExpectation: Number(form.expectedMonthlySalary) || null,
       skills: [...form.skills, ...form.tools],
     };
     try {
@@ -117,7 +114,7 @@ export default function CalculatorPage({ onResult }) {
         </h1>
         <p className="mb-6 text-sm text-slate-500">
           {step === 0 && 'Where you are today — this anchors your market position.'}
-          {step === 1 && 'The role you want to benchmark against.'}
+          {step === 1 && 'The industry and seniority of your current role.'}
           {step === 2 && 'Skills sharpen the match. Pick from suggestions or type your own.'}
           {step === 3 && 'Almost done — a few optional preferences.'}
         </p>
@@ -139,23 +136,17 @@ export default function CalculatorPage({ onResult }) {
               <SelectInput value={form.qualification} onChange={set('qualification')} options={QUALIFICATIONS} />
             </Field>
             <Field label="Current monthly base salary (S$)" hint="Base salary only, before bonus and allowances.">
-              <input
-                type="number"
-                min="0"
-                className="field-input"
+              <MoneyInput
                 value={form.currentMonthlySalary}
-                onChange={(e) => set('currentMonthlySalary')(e.target.value)}
-                placeholder="e.g. 6000"
+                onChange={set('currentMonthlySalary')}
+                placeholder="e.g. 6,000"
               />
             </Field>
             <Field label="Current annual package (S$)" optional hint="Including bonus, AWS and allowances, if you know it.">
-              <input
-                type="number"
-                min="0"
-                className="field-input"
+              <MoneyInput
                 value={form.currentAnnualPackage}
-                onChange={(e) => set('currentAnnualPackage')(e.target.value)}
-                placeholder="e.g. 90000"
+                onChange={set('currentAnnualPackage')}
+                placeholder="e.g. 90,000"
               />
             </Field>
           </div>
@@ -163,14 +154,6 @@ export default function CalculatorPage({ onResult }) {
 
         {step === 1 && (
           <div className="space-y-5">
-            <Field label="Target job title" hint="Can be the same as your current title.">
-              <AutocompleteInput
-                value={form.targetTitle}
-                onChange={set('targetTitle')}
-                suggestions={JOB_TITLES}
-                placeholder="e.g. Senior Data Centre Engineer"
-              />
-            </Field>
             <Field label="Industry">
               <OptionCards options={INDUSTRIES} value={form.industry} onChange={(v) => {
                 set('industry')(v);
@@ -212,20 +195,6 @@ export default function CalculatorPage({ onResult }) {
             </Field>
             <Field label="Preferred company size">
               <OptionCards options={COMPANY_SIZES} value={form.companySize} onChange={set('companySize')} />
-            </Field>
-            <Field
-              label="Expected monthly salary (S$)"
-              optional
-              hint="We'll show where this sits on the market curve."
-            >
-              <input
-                type="number"
-                min="0"
-                className="field-input"
-                value={form.expectedMonthlySalary}
-                onChange={(e) => set('expectedMonthlySalary')(e.target.value)}
-                placeholder="e.g. 7500"
-              />
             </Field>
             <Field label="Singapore work eligibility" optional>
               <SelectInput value={form.workEligibility} onChange={set('workEligibility')} options={WORK_ELIGIBILITY} />

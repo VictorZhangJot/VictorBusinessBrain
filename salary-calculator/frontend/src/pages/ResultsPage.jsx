@@ -58,7 +58,7 @@ export default function ResultsPage({ result, profile }) {
         <div>
           <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-electric">Your salary benchmark</p>
           <h1 className="text-2xl font-extrabold text-navy sm:text-3xl">
-            {profile.targetTitle || profile.currentTitle} · Singapore
+            {profile.currentTitle} · Singapore
           </h1>
           {pos && salary.currentSalaryPercentile != null && (
             <p className="mt-2 text-sm text-slate-500">
@@ -81,7 +81,7 @@ export default function ResultsPage({ result, profile }) {
           ['Market median (P50)', fmt(salary.p50), 'Half of comparable roles are estimated below this point and half above it.'],
           ['Competitive (P75)', fmt(salary.p75), 'A competitive salary, often for candidates with strong relevant skills or better role fit.'],
           ['Top market (P90)', fmt(salary.p90), 'Top-market compensation — usually needs strong experience, niche skills or leadership scope.'],
-          ['Recommended ask', `${fmt(salary.recommendedMin)} – ${fmt(salary.recommendedMax)}`, 'The range we would quote for a candidate with your profile.'],
+          ['Recommended ask', `${fmt(salary.recommendedMin)} – ${fmt(salary.recommendedMax)}`, 'The range we recommend asking for, based on your profile and the market data.'],
         ].map(([label, value, tip]) => (
           <div key={label} className="card p-5">
             <p className="mb-1 text-xs font-medium text-slate-400">
@@ -105,7 +105,6 @@ export default function ResultsPage({ result, profile }) {
           <BellCurveChart
             salary={salary}
             currentSalary={Number(profile.currentMonthlySalary)}
-            expectedSalary={Number(profile.expectedMonthlySalary)}
           />
         </div>
       </section>
@@ -168,7 +167,7 @@ export default function ResultsPage({ result, profile }) {
             free, no obligation.
           </p>
           <div className="rounded-2xl bg-white p-6 text-slate-800">
-            <LeadCaptureForm defaultTargetRole={profile.targetTitle} />
+            <LeadCaptureForm defaultTargetRole={profile.currentTitle} />
           </div>
         </div>
       </section>
