@@ -1,0 +1,8 @@
+# Dependencies and build output
+node_modules/
+frontend/dist/
+
+# Runtime data created by the app (private / machine-local)
+backend/src/data/uploadedBenchmarks.json
+backend/src/data/leads.json
+backend/src/data/resumes/

@@ -1,0 +1,16 @@
+{
+  "name": "jot-salary-calculator-backend",
+  "version": "1.0.0",
+  "description": "JOT Singapore Salary Calculator - backend API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "papaparse": "^5.4.1"
+  }
+}

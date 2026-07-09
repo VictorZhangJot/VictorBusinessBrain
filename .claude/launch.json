@@ -20,6 +20,18 @@
       "port": 4830
     },
     {
+      "name": "salary-calculator-backend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["salary-calculator/backend/server.js"],
+      "port": 4840
+    },
+    {
+      "name": "salary-calculator",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "salary-calculator/frontend"],
+      "port": 4841
+    },
+    {
       "name": "jot-website",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["--yes", "http-server", "jot-website", "-p", "4173", "-c-1"],

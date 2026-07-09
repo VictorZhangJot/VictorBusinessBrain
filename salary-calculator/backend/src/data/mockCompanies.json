@@ -1,0 +1,112 @@
+[
+  {
+    "company": "Meridian AI Labs",
+    "industry": "AI",
+    "commonRoles": ["AI Engineer", "Machine Learning Engineer", "MLOps Engineer", "Data Scientist"],
+    "typicalSalaryMin": 8500,
+    "typicalSalaryMax": 16000,
+    "keySkills": ["Python", "Machine Learning", "LLM Application Development", "MLOps", "Cloud Deployment"],
+    "hiringLikelihood": 88,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "Straits Digital Bank",
+    "industry": "Technology",
+    "commonRoles": ["Machine Learning Engineer", "Cloud Engineer", "Data Engineer", "Data Scientist"],
+    "typicalSalaryMin": 8000,
+    "typicalSalaryMax": 18000,
+    "keySkills": ["Python", "AWS", "Kubernetes", "SQL", "Machine Learning"],
+    "hiringLikelihood": 82,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "Pacific Hyperscale DC",
+    "industry": "Data Centre",
+    "commonRoles": ["Data Centre Engineer", "Data Centre Technician", "Facilities Engineer", "HR Business Partner"],
+    "typicalSalaryMin": 3800,
+    "typicalSalaryMax": 12000,
+    "keySkills": ["Data Centre Operations", "UPS", "BMS", "Preventive Maintenance", "Incident Response"],
+    "hiringLikelihood": 90,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "NexusColo Singapore",
+    "industry": "Data Centre",
+    "commonRoles": ["Data Centre Operations Manager", "Facilities Engineer", "Data Centre Engineer"],
+    "typicalSalaryMin": 5000,
+    "typicalSalaryMax": 15000,
+    "keySkills": ["Data Centre Operations", "Vendor Management", "BMS", "Critical Facilities"],
+    "hiringLikelihood": 84,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "GreenGrid Data Centres",
+    "industry": "Data Centre",
+    "commonRoles": ["Critical Facilities Manager", "Facilities Engineer", "Marketing Executive"],
+    "typicalSalaryMin": 4000,
+    "typicalSalaryMax": 16000,
+    "keySkills": ["Critical Facilities", "UPS", "Fire Suppression Systems", "Sustainability Reporting"],
+    "hiringLikelihood": 78,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "Temasek Health Group",
+    "industry": "Healthcare",
+    "commonRoles": ["Registered Nurse", "Senior Staff Nurse", "Data Analyst", "Clinic Manager"],
+    "typicalSalaryMin": 3500,
+    "typicalSalaryMax": 8500,
+    "keySkills": ["Patient Care", "Clinical Documentation", "Ward Operations", "SQL"],
+    "hiringLikelihood": 86,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "Harbourview Private Hospital",
+    "industry": "Healthcare",
+    "commonRoles": ["Senior Staff Nurse", "Registered Nurse", "Finance Manager"],
+    "typicalSalaryMin": 4200,
+    "typicalSalaryMax": 12500,
+    "keySkills": ["Critical Care", "Patient Care", "Clinical Leadership", "Financial Reporting"],
+    "hiringLikelihood": 80,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "WellPoint Medical Group",
+    "industry": "Healthcare",
+    "commonRoles": ["Clinic Manager", "HR Executive", "Healthcare Assistant", "Enrolled Nurse"],
+    "typicalSalaryMin": 2200,
+    "typicalSalaryMax": 7500,
+    "keySkills": ["Clinic Operations", "Patient Experience", "HR Operations", "Roster Management"],
+    "hiringLikelihood": 76,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "Vertex SaaS Asia",
+    "industry": "Technology",
+    "commonRoles": ["Business Development Manager", "Sales Manager", "Prompt Engineer", "Digital Marketing Manager"],
+    "typicalSalaryMin": 5500,
+    "typicalSalaryMax": 13000,
+    "keySkills": ["Business Development", "CRM", "Sales Pipeline Management", "LLM Application Development"],
+    "hiringLikelihood": 81,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "Lion City Commerce",
+    "industry": "Technology",
+    "commonRoles": ["Data Scientist", "Digital Marketing Manager", "Data Analyst", "Operations Executive"],
+    "typicalSalaryMin": 4500,
+    "typicalSalaryMax": 12000,
+    "keySkills": ["Python", "SQL", "Performance Marketing", "Data Visualisation"],
+    "hiringLikelihood": 79,
+    "source": "JOT Market Intelligence (mock)"
+  },
+  {
+    "company": "Equator Logistics Tech",
+    "industry": "Operations",
+    "commonRoles": ["Operations Manager", "Data Engineer", "Network Engineer", "Operations Executive"],
+    "typicalSalaryMin": 4000,
+    "typicalSalaryMax": 11500,
+    "keySkills": ["Operations Management", "Process Improvement", "SQL", "Project Management"],
+    "hiringLikelihood": 74,
+    "source": "JOT Market Intelligence (mock)"
+  }
+]
