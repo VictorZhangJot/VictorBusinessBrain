@@ -58,8 +58,38 @@ service such as Formspree or Tally, or to your own endpoint.
 
 The app builds to plain static files — any host works:
 
+### Deploying to Vercel (recommended — free)
+
+The `vercel.json` file in this folder tells Vercel exactly how to build the
+app, so there is nothing to configure. Two ways to do it:
+
+**Easiest — from GitHub:**
+
+1. Go to vercel.com and sign in with your GitHub account.
+2. Click "Add New… → Project" and import the `VictorBusinessBrain` repo.
+3. IMPORTANT: set the **Root Directory** to `jot-resume-builder` (click
+   "Edit" next to Root Directory and pick that folder). This is the one
+   setting that matters — the app lives in a subfolder of the repo.
+4. Click "Deploy". Vercel builds it and gives you a live link in ~1 minute.
+5. Every time the code is pushed to GitHub, Vercel updates the site
+   automatically.
+
+**Or from your computer (no GitHub needed):**
+
+1. In a terminal, run once: `npm install -g vercel`
+2. From inside this `jot-resume-builder` folder, run: `vercel`
+3. Answer the prompts (accept the defaults). It deploys and prints the link.
+
+### Putting it on your own domain
+
+Once deployed, open the project in Vercel → Settings → Domains, and add
+`resume.jot.com.sg`. Vercel shows you the one DNS record to add at your
+domain provider. After that, the tool lives at your own address.
+
+### Any other host
+
+The app builds to plain static files, so any host works:
+
 1. Run `npm run build` — this creates a `dist/` folder.
 2. Upload the contents of `dist/` to your web host, or drag the folder into
-   Netlify / Vercel / Cloudflare Pages (all have free tiers).
-3. To put it on a subdomain like `resume.jot.com.sg`, point the subdomain at
-   that host in your DNS settings.
+   Netlify / Cloudflare Pages (both have free tiers).
