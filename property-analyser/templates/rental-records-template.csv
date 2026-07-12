@@ -1,0 +1,3 @@
+lease_start,lease_quarter,street,property_type,monthly_rent_sgd,rent_psf_monthly,floor_area_sqm,floor_area_sqft,lease_term_months,aggregation_level,observations,source_name,source_url
+2026-01-01,,Anson Road,office,7500,,100,,36,unit,1,Signed tenancy (own records),
+,2026Q1,Anson Road,office,,6.20,,,,street,14,URA rental statistics (street level),https://www.ura.gov.sg/Corporate/Property/Property-Data

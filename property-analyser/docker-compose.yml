@@ -1,0 +1,30 @@
+services:
+  app:
+    build: .
+    ports:
+      - "4850:4850"
+    environment:
+      # SQLite inside a volume by default. For Postgres, point DATABASE_URL at
+      # the db service below and switch the provider in prisma/schema.prisma
+      # (see docs/DEPLOYMENT.md).
+      DATABASE_URL: "file:/data/app.db"
+      SESSION_SECRET: "${SESSION_SECRET:-change-me}"
+      APP_TIMEZONE: "Asia/Singapore"
+      APP_CURRENCY: "SGD"
+    volumes:
+      - appdata:/data
+
+  # Optional production database (enable together with the Prisma provider switch)
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: property_analyser
+      POSTGRES_USER: analyser
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-change-me}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    profiles: ["postgres"]
+
+volumes:
+  appdata:
+  pgdata:

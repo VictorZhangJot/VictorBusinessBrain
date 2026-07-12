@@ -32,6 +32,12 @@
       "port": 4841
     },
     {
+      "name": "property-analyser",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "property-analyser"],
+      "port": 4850
+    },
+    {
       "name": "jot-website",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["--yes", "http-server", "jot-website", "-p", "4173", "-c-1"],

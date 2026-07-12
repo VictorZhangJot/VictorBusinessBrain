@@ -1,0 +1,365 @@
+// Singapore Commercial Property Analyser - database schema.
+// Local development: SQLite. Production: switch provider to "postgresql"
+// (see docs/DEPLOYMENT.md; a PostGIS geometry column is added there via raw SQL).
+// Money is stored as REAL in SQLite / NUMERIC in Postgres; all financial maths
+// in the app runs through decimal.js, never raw floats.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Core property entities
+// ---------------------------------------------------------------------------
+
+model Building {
+  id                 String    @id @default(cuid())
+  name               String
+  address            String
+  postalCode         String?
+  lat                Float?
+  lng                Float?
+  planningArea       String?
+  subzone            String?
+  propertyCategory   String // office | retail | mall_unit | shophouse | mixed_commercial | strata_commercial | business_park | industrial
+  developmentType    String?
+  completionYear     Int?
+  topDate            DateTime?
+  tenureType         String // freehold | leasehold_99 | leasehold_999 | leasehold_other | unknown
+  leaseCommencement  DateTime?
+  leaseTermYears     Int?
+  leaseSourceQuality String? // authoritative | reported | estimated | unknown
+  grossFloorAreaSqm  Float?
+  plotRatio          Float?
+  masterPlanZoning   String?
+  allowableUse       String?
+  conservationStatus String?
+  numUnits           Int?
+  carParkLots        Int?
+  nearestMrt         String?
+  nearestMrtMetres   Float?
+  recordStatus       String    @default("user") // official | user | demo | estimated | derived
+  sourceName         String?
+  sourceUrl          String?
+  retrievalDate      DateTime?
+  confidence         String    @default("medium") // high | medium | low | insufficient
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  properties        Property[]
+  saleTransactions  SaleTransaction[]
+  rentalTransactions RentalTransaction[]
+  landParcel        LandParcel?
+}
+
+model Property {
+  id             String   @id @default(cuid())
+  buildingId     String
+  building       Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  unitNumber     String?
+  floorLevel     String? // e.g. "12" or band "11-15"
+  floorAreaSqm   Float?
+  usageType      String?
+  recordStatus   String   @default("user")
+  createdAt      DateTime @default(now())
+
+  overrides      UserPropertyOverride[]
+  assumptions    FinancialAssumption[]
+  reports        AnalysisReport[]
+}
+
+model LandParcel {
+  id           String    @id @default(cuid())
+  buildingId   String    @unique
+  building     Building  @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  lotNumber    String?
+  siteAreaSqm  Float?
+  geometryWkt  String? // WKT polygon; becomes PostGIS geometry in production
+  sourceName   String?
+  retrievalDate DateTime?
+}
+
+// ---------------------------------------------------------------------------
+// Market data
+// ---------------------------------------------------------------------------
+
+model SaleTransaction {
+  id                 String    @id @default(cuid())
+  buildingId         String?
+  building           Building? @relation(fields: [buildingId], references: [id], onDelete: SetNull)
+  transactionDate    DateTime
+  projectName        String?
+  street             String?
+  postalCode         String?
+  unitIdentifier     String?
+  floorLevelBand     String?
+  floorAreaSqm       Float?
+  floorAreaSqft      Float?
+  propertyType       String
+  priceSgd           Float
+  psf                Float?
+  psm                Float?
+  typeOfSale         String? // new_sale | sub_sale | resale
+  tenure             String?
+  leaseCommencement  DateTime?
+  leaseTermYears     Int?
+  remainingLeaseYearsAtSale Float?
+  // source lineage
+  sourceName         String
+  sourceUrl          String?
+  retrievalDate      DateTime  @default(now())
+  reportingPeriod    String?
+  recordStatus       String    @default("user") // official | user | demo | estimated | derived
+  confidence         String    @default("medium")
+  limitation         String?
+  rawPayload         String?
+  // duplicate detection
+  dedupeKey          String?
+  possibleDuplicate  Boolean   @default(false)
+  duplicateOfId      String?
+  createdAt          DateTime  @default(now())
+
+  @@index([buildingId, transactionDate])
+  @@index([dedupeKey])
+}
+
+model RentalTransaction {
+  id               String    @id @default(cuid())
+  buildingId       String?
+  building         Building? @relation(fields: [buildingId], references: [id], onDelete: SetNull)
+  leaseStartDate   DateTime?
+  leaseQuarter     String? // e.g. "2025Q4" when only quarter-level data exists
+  monthlyRentSgd   Float?
+  rentPsfMonthly   Float?
+  floorAreaSqm     Float?
+  street           String?
+  propertyType     String
+  leaseTermMonths  Int?
+  aggregationLevel String    @default("unit") // unit | building | street | locality | index
+  observations     Int?
+  sourceName       String
+  sourceUrl        String?
+  retrievalDate    DateTime  @default(now())
+  reportingPeriod  String?
+  recordStatus     String    @default("user")
+  confidence       String    @default("medium")
+  limitation       String?
+  rawPayload       String?
+  dedupeKey        String?
+  possibleDuplicate Boolean  @default(false)
+  createdAt        DateTime  @default(now())
+
+  @@index([buildingId, leaseStartDate])
+}
+
+model CommercialIndex {
+  id           String   @id @default(cuid())
+  indexName    String // e.g. "URA Office Rental Index (Central Region)"
+  period       String // e.g. "2026Q1"
+  value        Float
+  sourceName   String
+  sourceUrl    String?
+  retrievalDate DateTime @default(now())
+  recordStatus String   @default("user")
+
+  @@unique([indexName, period])
+}
+
+// ---------------------------------------------------------------------------
+// Planning and vicinity
+// ---------------------------------------------------------------------------
+
+model PlanningZone {
+  id           String  @id @default(cuid())
+  planningArea String
+  subzone      String?
+  zoning       String?
+  plotRatio    Float?
+  geometryWkt  String?
+  sourceName   String?
+  effectiveDate DateTime?
+  retrievalDate DateTime?
+}
+
+model MasterPlanFeature {
+  id            String  @id @default(cuid())
+  featureType   String // zoning | plot_ratio_change | conservation | redevelopment
+  description   String
+  lat           Float?
+  lng           Float?
+  geometryWkt   String?
+  status        String // gazetted | draft | proposed
+  sourceName    String
+  sourceUrl     String?
+  effectiveDate DateTime?
+  retrievalDate DateTime @default(now())
+  recordStatus  String   @default("user")
+}
+
+model NearbyProject {
+  id                 String    @id @default(cuid())
+  name               String
+  projectType        String // office | retail | mixed | residential | mrt | road | business_park | civic | healthcare | education | data_centre | redevelopment
+  description        String?
+  lat                Float
+  lng                Float
+  status             String // existing | under_construction | confirmed | tendered | gazetted | proposed | draft_intention | long_term_concept | unverified
+  expectedCompletion String?
+  announcedDate      DateTime?
+  sourceName         String
+  sourceUrl          String?
+  retrievalDate      DateTime  @default(now())
+  recordStatus       String    @default("user")
+  confidence         String    @default("medium")
+  createdAt          DateTime  @default(now())
+}
+
+model TransportProject {
+  id                 String   @id @default(cuid())
+  name               String
+  transportType      String // mrt_station | mrt_line | road | bus_interchange
+  lat                Float?
+  lng                Float?
+  status             String
+  expectedCompletion String?
+  sourceName         String
+  sourceUrl          String?
+  retrievalDate      DateTime @default(now())
+  recordStatus       String   @default("user")
+}
+
+// ---------------------------------------------------------------------------
+// Source lineage
+// ---------------------------------------------------------------------------
+
+model PropertySource {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  kind        String // official_api | official_download | subscription_export | user_upload | manual_entry
+  baseUrl     String?
+  termsUrl    String?
+  authority   String // government | commercial | user
+  notes       String?
+}
+
+model SourceRetrieval {
+  id           String   @id @default(cuid())
+  sourceName   String
+  retrievedAt  DateTime @default(now())
+  requestInfo  String?
+  recordCount  Int?
+  status       String // ok | error | partial
+  errorDetail  String?
+}
+
+// ---------------------------------------------------------------------------
+// User data
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String?
+  role         String   @default("owner") // owner | member | viewer
+  createdAt    DateTime @default(now())
+
+  sessions    Session[]
+  watchlist   WatchlistItem[]
+  scenarios   FinancialScenario[]
+  assumptions FinancialAssumption[]
+  uploads     Upload[]
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model WatchlistItem {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  buildingId String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, buildingId])
+}
+
+model Upload {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  fileName    String
+  kind        String // sales_csv | rental_csv | projects_csv | realis_xlsx
+  rowsImported Int
+  rowsFlagged  Int
+  createdAt   DateTime @default(now())
+}
+
+model UserPropertyOverride {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  fieldName   String
+  value       String
+  reason      String?
+  createdAt   DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Analysis
+// ---------------------------------------------------------------------------
+
+model FinancialAssumption {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  buildingId String?
+  name       String
+  payload    String // JSON blob of CalculatorInputs
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model FinancialScenario {
+  id           String   @id @default(cuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  assumptionId String?
+  name         String // conservative | base | optimistic | custom name
+  payload      String // JSON blob of scenario overrides
+  createdAt    DateTime @default(now())
+}
+
+model AnalysisReport {
+  id         String   @id @default(cuid())
+  propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  buildingId String?
+  title      String
+  payload    String // JSON snapshot of full analysis
+  createdAt  DateTime @default(now())
+}
+
+model ComparableResult {
+  id              String   @id @default(cuid())
+  subjectBuildingId String
+  transactionId   String
+  similarityScore Float
+  scoreBreakdown  String // JSON
+  createdAt       DateTime @default(now())
+
+  @@index([subjectBuildingId])
+}

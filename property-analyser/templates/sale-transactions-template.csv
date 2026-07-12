@@ -1,0 +1,2 @@
+transaction_date,project_name,street,postal_code,property_type,price_sgd,floor_area_sqm,floor_area_sqft,floor_level,unit_identifier,type_of_sale,tenure,lease_commencement,lease_term_years,source_name,source_url
+2026-03-15,EXAMPLE TOWER,Anson Road,079914,office,2500000,100,,11-15,,resale,leasehold_99,1972-06-01,99,URA PMI commercial transactions (downloaded 2026-07-12),https://eservice.ura.gov.sg/property-market-information/pmiCommercialTransactionSearch
